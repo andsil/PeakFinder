@@ -18,7 +18,25 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
-      <itemPath>oct_simul.tiff</itemPath>
+      <logicalFolder name="InputImages" displayName="InputImages" projectFiles="true">
+        <itemPath>InputImages/a0.tif</itemPath>
+        <itemPath>InputImages/a1.tif</itemPath>
+        <itemPath>InputImages/a2.tif</itemPath>
+        <itemPath>InputImages/a3.tif</itemPath>
+        <itemPath>InputImages/b0.tif</itemPath>
+        <itemPath>InputImages/b1.tif</itemPath>
+        <itemPath>InputImages/b2.tif</itemPath>
+        <itemPath>InputImages/c0.tif</itemPath>
+        <itemPath>InputImages/c1.tif</itemPath>
+        <itemPath>InputImages/c2.tif</itemPath>
+        <itemPath>InputImages/oct_simul.tif</itemPath>
+      </logicalFolder>
+      <logicalFolder name="OutputImages"
+                     displayName="OutputImages"
+                     projectFiles="true">
+      </logicalFolder>
+      <logicalFolder name="OutputLog" displayName="OutputLog" projectFiles="true">
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -47,6 +65,11 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>InputImages</Elem>
+    <Elem>OutputImages</Elem>
+    <Elem>OutputLog</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Debug" type="1">
@@ -64,6 +87,28 @@
           <commandLine>-lm -ltiff</commandLine>
         </linkerTool>
       </compileType>
+      <item path="InputImages/a0.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/a1.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/a2.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/a3.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/b0.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/b1.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/b2.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/c0.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/c1.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/c2.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/oct_simul.tif" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="PointLL.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="PointLL.h" ex="false" tool="3" flavor2="0">
@@ -91,8 +136,6 @@
       <item path="maxTreshHold.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="maxTreshHold.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="oct_simul.tiff" ex="false" tool="3" flavor2="0">
       </item>
       <item path="peakfinder.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -129,6 +172,28 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="InputImages/a0.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/a1.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/a2.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/a3.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/b0.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/b1.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/b2.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/c0.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/c1.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/c2.tif" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="InputImages/oct_simul.tif" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="PointLL.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="PointLL.h" ex="false" tool="3" flavor2="0">
@@ -156,8 +221,6 @@
       <item path="maxTreshHold.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="maxTreshHold.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="oct_simul.tiff" ex="false" tool="3" flavor2="0">
       </item>
       <item path="peakfinder.c" ex="false" tool="0" flavor2="0">
       </item>

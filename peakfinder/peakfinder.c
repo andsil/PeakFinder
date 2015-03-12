@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     
     if(argc<2){//iterative
         //printf("Put the path to File:");
-        inputFileName = "oct_simul.tiff";//readline(stdout);
+        inputFileName = "InputImages/a0.tif";//readline(stdout);
     } else {//automatic
         inputFileName = argv[1];
     }
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
             image->median,
             image->average);
     
-    FILE* out = fopen("outMatrix.txt", "w");
+    FILE* out = fopen("OutputLog/outMatrix.txt", "w");
     
     //view image intensity
     int width = image->width, height = image->height;
@@ -148,19 +148,21 @@ int main(int argc, char* argv[]) {
     
     //->TEST!!!
     TiffImage aux;
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("4.estatico70.tiff", binImage8bitStatic(aux, 0.7));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70.tiff", binImage8bitStatic(aux, 0.7));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
     
     aux = cloneTiffImage(contrasted);
+    fprintf(stdout, "Binarizing\n");
     binImage8bitStatic(aux, 0.684);
-    image->listRegions = aux->listRegions = findRegions(aux);
-    image->pointCount  = aux->pointCount  = regionCount(aux->listRegions);
+    fprintf(stdout, "Done\n");
     //Heavy calculations!!! Should be avoided!
     //aux = imageBinarization(aux, 0.6, 100);//MEMORY LEAK! THERE ARE 2 IMAGE-> 'AUX' ARG AND 'AUX' RETURN -> 'AUX' ARG POINTER IS LOST WITHOUT MEMORY RELEASE!
+    image->listRegions = aux->listRegions = findRegions(aux);
+    image->pointCount  = aux->pointCount  = regionCount(aux->listRegions);
     if(aux != NULL){
         fprintf(stdout, "OK\n");
     } else {
@@ -190,8 +192,8 @@ int main(int argc, char* argv[]) {
     TiffImage masked = aplyMask(image, wdim/2);
     //getWDim(aux);//->Does not work (something wrong)
     fprintf(stdout, "END wdim:%d\n",wdim);
-    res = writeTiffImage("estatico70WithCentroid.tiff", aux);
-    res = writeTiffImage("Mascarado.tiff", masked);
+    res = writeTiffImage("OutputImages/static70WithCentroid.tiff", aux);
+    res = writeTiffImage("OutputImages/Masked.tiff", masked);
     free(aux);
     //->END TEST!!!
     
@@ -269,7 +271,7 @@ void showCentroid(TiffImage img, RegionLL regList){
     
     while(auxRLL){
         auxR = auxRLL->region;
-        img->image[(int)round(auxR->centroid.y)][(int)round(auxR->centroid.x)] = 127;
+        img->image[(int)round(auxR->centroid.y)][(int)round(auxR->centroid.x)] = 0;
         auxRLL = auxRLL->nextRegion;
     }
 }

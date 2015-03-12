@@ -9,7 +9,11 @@
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
-            <sourceRootList/>
+            <sourceRootList>
+                <sourceRootElem>InputImages</sourceRootElem>
+                <sourceRootElem>OutputImages</sourceRootElem>
+                <sourceRootElem>OutputLog</sourceRootElem>
+            </sourceRootList>
             <confList>
                 <confElem>
                     <name>Debug</name>
