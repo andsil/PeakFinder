@@ -148,12 +148,12 @@ int main(int argc, char* argv[]) {
     
     //->TEST!!!
     TiffImage aux;
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
     aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70.tiff", binImage8bitStatic(aux, 0.7));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
     
     aux = cloneTiffImage(contrasted);
     fprintf(stdout, "Binarizing\n");
