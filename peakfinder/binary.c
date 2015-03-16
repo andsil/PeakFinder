@@ -59,7 +59,7 @@ TiffImage binImage8bit(TiffImage img, uint8 trgLevel){
     for(i=0; i<img->height; i++){
         for(j=0; j<img->width; j++){
             if(img->image[i][j]>trgLevel)
-                res[i][j] = 255;
+                res[i][j] = WHITE;
         }
         //free line to be replaced
         free(img->image[i]);
@@ -82,4 +82,108 @@ error:
         free(res);
     }
     return NULL;
+}
+
+/**
+ * Morphologic Operator - Dilatation
+ */
+TiffImage binary_dilation(TiffImage img){
+    if(!img){
+        goto error;
+    }
+    TiffImage res = cloneTiffImage(img);
+    if(!res){
+        goto error;
+    }
+    
+    int width = img->width;
+    int height = img->height;
+    int i,j;
+    for(i=0; i<height; i++){
+        for(j=0; j<width; j++){
+            //if the pixel is black
+            if(img->image[i][j] == BLACK){
+                                    res->image[i][j]   = BLACK;
+                if(i-1 > 0)         res->image[i-1][j] = BLACK;
+                if(j-1 > 0)         res->image[i][j-1] = BLACK;
+                if(i+1 < height)    res->image[i+1][j] = BLACK;
+                if(j+1 < width)     res->image[i][j+1] = BLACK;
+            }
+        }
+    }
+    destroyTiffImage(img);
+    
+    return res;
+error:
+    fprintf(stderr, "[BINIMG]An error occurred\n");
+    return NULL;
+}
+
+/**
+ * Morphologic Operator - Erasion
+ */
+TiffImage binary_erosion(TiffImage img){
+    if(!img){
+        goto error;
+    }
+    TiffImage res = cloneTiffImage(img);
+    if(!res){
+        goto error;
+    }
+    
+    int width = img->width;
+    int height = img->height;
+    int i,j;
+    int white;
+    
+    for(i=0; i<height; i++){
+        for(j=0; j<width; j++){
+            white = FALSE;
+            //if the pixel is black
+            if(img->image[i][j] == BLACK){
+                //if one of the surrounding pixels is white change to white
+                if((i-1 > 0 && img->image[i-1][j] == WHITE) ||
+                   (j-1 > 0 && img->image[i][j-1] == WHITE) ||
+                   (i+1 < height && img->image[i+1][j] == WHITE) ||
+                   (j+1 < width  && img->image[i][j+1] == WHITE) ){
+                    white = TRUE;
+                }
+                if(white){
+                    res->image[i][j] = WHITE;
+                } else {
+                    res->image[i][j] = BLACK;
+                }
+            }
+        }
+    }
+    destroyTiffImage(img);
+    
+    return res;
+error:
+    fprintf(stderr, "[BINIMG]An error occurred\n");
+    return NULL;
+}
+
+/**
+ * Morphologic Operator - Opening
+ */
+TiffImage binary_opening(TiffImage img){
+    //validation
+    if(!img){
+        return NULL;
+    }
+    
+    return binary_dilation(binary_erosion(img));
+}
+
+/**
+ * Morphologic Operator - Closing
+ */
+TiffImage binary_closing(TiffImage img){
+    //validation
+    if(!img){
+        return NULL;
+    }
+    
+    return binary_erosion(binary_dilation(img));
 }

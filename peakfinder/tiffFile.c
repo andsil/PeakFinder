@@ -97,6 +97,7 @@ TiffImage cloneTiffImage(TiffImage obj){
         if(!(res->image[i]=(uint8*)malloc(sizeof(uint8)*width))){
             goto error;
         }
+        //copy pixel values
         for(j=0; j<width; j++){
             res->image[i][j]=obj->image[i][j];
         }

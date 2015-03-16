@@ -151,7 +151,10 @@ int main(int argc, char* argv[]) {
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70.tiff", binImage8bitStatic(aux, 0.7));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Opening.tif", binary_opening(binImage8bitStatic(aux, 0.7)));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.7)));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Opening.tif", binary_opening(binImage8bitStatic(aux, 0.8)));free(aux);
+    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.8)));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
     

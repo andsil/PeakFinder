@@ -11,6 +11,10 @@ extern "C" {
 /*****************************************************************
 ########################  DATA STRUCTURES #######################
  *****************************************************************/
+    
+#define BLACK 0
+#define WHITE 255
+    
 /*****************************************************************
 ######################  END DATA STRUCTURES #####################
  *****************************************************************/
@@ -56,6 +60,26 @@ TiffImage binImage8bitDynamicHalf(TiffImage img);
  * black(0), otherwise is white(1)
  */
 TiffImage binImage8bit(TiffImage img, uint8 trgLevel);
+
+/**
+ * Morphologic Operator - Dilatation
+ */
+TiffImage binary_dilation(TiffImage img);
+
+/**
+ * Morphologic Operator - Erasion
+ */
+TiffImage binary_erosion(TiffImage img);
+
+/**
+ * Morphologic Operator - Opening
+ */
+TiffImage binary_opening(TiffImage img);
+
+/**
+ * Morphologic Operator - Closing
+ */
+TiffImage binary_closing(TiffImage img);
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
  *****************************************************************/
