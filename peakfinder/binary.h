@@ -80,6 +80,16 @@ TiffImage binary_opening(TiffImage img);
  * Morphologic Operator - Closing
  */
 TiffImage binary_closing(TiffImage img);
+
+/**
+ * Gets the mean of the surrounding pixels
+ */
+TiffImage binary_meanFilter(TiffImage img);
+
+/**
+ * Gets the median of the surrounding pixels
+ */
+TiffImage binary_medianFilter(TiffImage img);
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
  *****************************************************************/

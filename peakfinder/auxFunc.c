@@ -105,3 +105,20 @@ char isInside(int startY, int startX, int sizeY, int sizeX){
     }
     return TRUE;
 }
+
+/**
+ * sort the window using insertion sort
+ * insertion sort is best for this sorting
+ */
+void insertionSort(uint8 window[]) {
+    int i, j;
+    uint8 temp;
+    
+    for(i = 0; i < 9; i++){
+        temp = window[i];
+        for(j = i-1; j >= 0 && temp < window[j]; j--){
+            window[j+1] = window[j];
+        }
+        window[j+1] = temp;
+    }
+}

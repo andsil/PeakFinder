@@ -4,6 +4,7 @@
 #include <stdlib.h>//malloc
 #include <stdarg.h>//va_*
 #include <string.h>//strcpy
+#include <tiff.h>//uint8
 
 #ifdef	__cplusplus
 extern "C" {
@@ -12,7 +13,6 @@ extern "C" {
 /*****************************************************************
 ########################  DATA STRUCTURES #######################
  *****************************************************************/
-
 
 //AUX DEFINITIONS
 #define FALSE       0
@@ -61,6 +61,12 @@ char* concat(int count, ...);
  * inside the image area or not.
  */
 char isInside(int startY, int startX, int sizeY, int sizeX);
+
+/**
+ * sort the window using insertion sort
+ * insertion sort is best for this sorting
+ */
+void insertionSort(uint8 window[]);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
