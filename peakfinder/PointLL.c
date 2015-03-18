@@ -371,8 +371,14 @@ PointCoord* compute2DPolygonCentroid(PointLL list, PointCoord* centroid, int sta
 
     //Final calculation
     signedArea *= 0.5;
-    centroid->x /= (6.0*signedArea);
-    centroid->y /= (6.0*signedArea);
+    //if could not calculate signed area return null
+    //otherwise would be doing division by 0
+    if(signedArea == 0){
+        return NULL;
+    } else {
+        centroid->x /= (6.0*signedArea);
+        centroid->y /= (6.0*signedArea);
+    }
 
     return centroid;
     

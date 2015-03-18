@@ -260,6 +260,7 @@ error:
 
 Region createNewRegion(PointLL pointList){
     Region res;
+    PointCoord* aux;
     
     //validation
     if(!(res = newRegion())){
@@ -271,9 +272,14 @@ Region createNewRegion(PointLL pointList){
     getPointLLParameters(pointList, &res->coordXBeg, &res->coordYBeg,
             &res->coordXEnd, &res->coordYEnd, &res->minValue, &res->maxValue,
             &res->pointCount);
-    compute2DPolygonCentroid(pointList, &res->centroid, res->coordXBeg,
+    aux = compute2DPolygonCentroid(pointList, &res->centroid, res->coordXBeg,
             res->coordYBeg, res->coordXEnd-res->coordXBeg+1,
             res->coordYEnd-res->coordYBeg+1);
+    
+    //if could not calculate centroid, give this indication
+    if(aux == NULL){
+        return NULL;
+    }
     
     return res;
     

@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     
     if(argc<2){//iterative
         //printf("Put the path to File:");
-        inputFileName = "InputImages/a0.tif";//readline(stdout);
+        inputFileName = "InputImages/c2.tif";//readline(stdout);
     } else {//automatic
         inputFileName = argv[1];
     }
@@ -103,7 +103,8 @@ int main(int argc, char* argv[]) {
     fprintf(out, "\n\n\n");
     
     //contrast image
-    TiffImage contrasted = histogramEqualization(image);
+    //TiffImage contrasted = histogramEqualization(image);
+    TiffImage contrasted = histogramEqualization(binary_gaussianFilter(image));
     
     printf("ndirs=%d ,"
             "fileName=%s ,"
@@ -151,16 +152,23 @@ int main(int argc, char* argv[]) {
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Opening.tif", binary_opening(binImage8bitStatic(aux, 0.7)));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.7)));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Opening.tif", binary_opening(binImage8bitStatic(aux, 0.8)));free(aux);
+    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/mean.tif", image=binary_meanFilter(aux));//free(aux);
+    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/gaussian.tif", image=binary_gaussianFilter(aux));//free(aux);
+    //contrasted = histogramEqualization(image);
+    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/median.tif", aux=binary_medianFilter(aux));free(aux);
+    
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Opening.tif", binary_opening(binImage8bitStatic(aux, 0.7)));free(aux);
+    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.7)));free(aux);
+    /*aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Opening.tif", binary_opening(binImage8bitStatic(aux, 0.8)));free(aux);
     aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.8)));free(aux);
+    */
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
     
     aux = cloneTiffImage(contrasted);
     fprintf(stdout, "Binarizing\n");
     binImage8bitStatic(aux, 0.684);
+    res = writeTiffImage("OutputImages/bina.tif",aux);
     fprintf(stdout, "Done\n");
     //Heavy calculations!!! Should be avoided!
     //aux = imageBinarization(aux, 0.6, 100);//MEMORY LEAK! THERE ARE 2 IMAGE-> 'AUX' ARG AND 'AUX' RETURN -> 'AUX' ARG POINTER IS LOST WITHOUT MEMORY RELEASE!

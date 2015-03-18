@@ -38,8 +38,7 @@ RegionLL findRegions(TiffImage img){
     //LIFO queue
     int sp = 0;
     /* UNECESSARY SPACE ALOCATED!!!!! COULD BE OPTIMIZED */
-    PointCoord queueStack[width*height];
-    
+    PointCoord queueStack[width*2+height*2];
     for(i=0; i<height; i++){
         for(j=0; j<width; j++){
             //check if this is a white point and was not visited yet
@@ -94,8 +93,13 @@ RegionLL findRegions(TiffImage img){
                     //create a region
                     auxRegion = createNewRegion(auxPointList);
                     
-                    //add the region to the current list of regions
-                    resRegionList = addRegionLLEntry(resRegionList, auxRegion);
+                    if(auxRegion != NULL){
+                        //add the region to the current list of regions
+                        resRegionList = addRegionLLEntry(resRegionList, auxRegion);
+                    } else {
+                        //if failed free memory
+                        remAllPointLL(auxPointList);
+                    }
                     
                     //reset pointer to Point list for the next iteration;
                     auxPointList  = NULL;

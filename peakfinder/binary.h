@@ -2,6 +2,7 @@
 #define	BINARY_H
 
 #include <tiff.h>//uint8
+#include <math.h>//exp,...
 
 #include "tiffFile.h"//TiffImage
 
@@ -90,6 +91,20 @@ TiffImage binary_meanFilter(TiffImage img);
  * Gets the median of the surrounding pixels
  */
 TiffImage binary_medianFilter(TiffImage img);
+
+/**
+ * Sigma filter
+ */
+TiffImage binary_sigmaFilter(TiffImage img, int sigma);
+
+/**
+ * gaussian filter
+ * sigma=1
+ */
+TiffImage binary_gaussianFilter(TiffImage img);
+
+// reflected indexing for border processing
+int reflect(int M, int x);
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
  *****************************************************************/
