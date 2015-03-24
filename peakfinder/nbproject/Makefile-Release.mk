@@ -35,6 +35,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/InputImages/complex.o \
+	${OBJECTDIR}/InputImages/fourier.o \
 	${OBJECTDIR}/PointLL.o \
 	${OBJECTDIR}/RegionLL.o \
 	${OBJECTDIR}/auxFunc.o \
@@ -71,6 +73,16 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/InputImages/complex.o: InputImages/complex.c 
+	${MKDIR} -p ${OBJECTDIR}/InputImages
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/InputImages/complex.o InputImages/complex.c
+
+${OBJECTDIR}/InputImages/fourier.o: InputImages/fourier.c 
+	${MKDIR} -p ${OBJECTDIR}/InputImages
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/InputImages/fourier.o InputImages/fourier.c
 
 ${OBJECTDIR}/PointLL.o: PointLL.c 
 	${MKDIR} -p ${OBJECTDIR}
