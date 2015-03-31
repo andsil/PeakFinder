@@ -116,7 +116,7 @@ static int fft( int n, double re[], double im[] )
 /* 2D Fast Fourier Transform for PPM : Processing part */
 
 
-void fourier(Complex out[][FFT_SIZE], double in[][FFT_SIZE] ) {
+void fourier(Complex** out, uint8** in ) {
   int x, y;
   double re[FFT_SIZE], im[FFT_SIZE];
 
@@ -146,7 +146,7 @@ void fourier(Complex out[][FFT_SIZE], double in[][FFT_SIZE] ) {
   }
 }
 
-void inverseFourier(double out[][FFT_SIZE], Complex in[][FFT_SIZE] ){
+void inverseFourier(uint8** out, Complex** in ){
   int x, y;
   double re[FFT_SIZE], im[FFT_SIZE];
   double Real[FFT_SIZE][FFT_SIZE], Imag[FFT_SIZE][FFT_SIZE];
@@ -192,7 +192,7 @@ void inverseFourier(double out[][FFT_SIZE], Complex in[][FFT_SIZE] ){
   }
 }
 
-void fourierSpectrumImage(double out[][FFT_SIZE], Complex in[][FFT_SIZE])
+void fourierSpectrumImage(uint8** out, Complex** in)
 {
   int x, y, i;
   int max_exp = -100, exp;

@@ -35,13 +35,13 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/InputImages/complex.o \
-	${OBJECTDIR}/InputImages/fourier.o \
 	${OBJECTDIR}/PointLL.o \
 	${OBJECTDIR}/RegionLL.o \
 	${OBJECTDIR}/auxFunc.o \
 	${OBJECTDIR}/binary.o \
+	${OBJECTDIR}/complex.o \
 	${OBJECTDIR}/contrast.o \
+	${OBJECTDIR}/fourier.o \
 	${OBJECTDIR}/mask.o \
 	${OBJECTDIR}/maxTreshHold.o \
 	${OBJECTDIR}/peakfinder.o \
@@ -74,16 +74,6 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/InputImages/complex.o: InputImages/complex.c 
-	${MKDIR} -p ${OBJECTDIR}/InputImages
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/InputImages/complex.o InputImages/complex.c
-
-${OBJECTDIR}/InputImages/fourier.o: InputImages/fourier.c 
-	${MKDIR} -p ${OBJECTDIR}/InputImages
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/InputImages/fourier.o InputImages/fourier.c
-
 ${OBJECTDIR}/PointLL.o: PointLL.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -104,10 +94,20 @@ ${OBJECTDIR}/binary.o: binary.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/binary.o binary.c
 
+${OBJECTDIR}/complex.o: complex.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/complex.o complex.c
+
 ${OBJECTDIR}/contrast.o: contrast.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/contrast.o contrast.c
+
+${OBJECTDIR}/fourier.o: fourier.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/fourier.o fourier.c
 
 ${OBJECTDIR}/mask.o: mask.c 
 	${MKDIR} -p ${OBJECTDIR}

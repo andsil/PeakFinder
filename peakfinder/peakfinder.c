@@ -1,6 +1,7 @@
 #include <stdio.h>//fgets, fprintf, etc
 #include <stdlib.h>//realloc
 #include <string.h>//strchr
+//#include <fftw3.h>
 //#include <inttypes.h>//PRId32
 //#include <unistd.h>//usleep
 
@@ -12,7 +13,8 @@
 #include "RegionLL.h"
 #include "maxTreshHold.h" //findRegion, imageBinarization
 #include "mask.h"
-
+#include "complex.h"
+#include "fourier.h"
 
 /*****************************************************************
 ########################    PROTOTYPES    #######################
@@ -41,7 +43,7 @@ int main(int argc, char* argv[]) {
     
     if(argc<2){//iterative
         //printf("Put the path to File:");
-        inputFileName = "InputImages/c2.tif";//readline(stdout);
+        inputFileName = "InputImages/a0.tif";//readline(stdout);
     } else {//automatic
         inputFileName = argv[1];
     }
@@ -164,6 +166,28 @@ int main(int argc, char* argv[]) {
     */
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
     //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
+    
+    aux = cloneTiffImage(image);
+    /*Filename*/
+    char append[] = "_fourier.tiff";
+    char* aux_fileName = remove_ext(aux->fileName, '.', '/');
+    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_fileName)+strlen(append)+1))){
+        goto error;
+    }
+    aux->fileName = concat(2, aux_fileName, append);
+    free(aux_fileName);
+    /*End Filename*/
+    fprintf(stdout, "Fourier\n");fflush(stdout);
+    Complex** outComp = (Complex**) malloc (sizeof(Complex*)*height);
+    int u;
+    for(u=0; u<height; u++){
+        outComp[u] = (Complex*) malloc (sizeof(Complex)*width);
+    }
+    fourier(outComp, aux->image);
+    fourierSpectrumImage(aux->image, outComp);
+    res = writeTiffImage(aux->fileName,aux);
+    fprintf(stdout, "Done\n");
+    destroyTiffImage(aux);
     
     aux = cloneTiffImage(contrasted);
     fprintf(stdout, "Binarizing\n");

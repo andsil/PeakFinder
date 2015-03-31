@@ -8,9 +8,9 @@
       <itemPath>RegionLL.h</itemPath>
       <itemPath>auxFunc.h</itemPath>
       <itemPath>binary.h</itemPath>
-      <itemPath>InputImages/complex.h</itemPath>
+      <itemPath>complex.h</itemPath>
       <itemPath>contrast.h</itemPath>
-      <itemPath>InputImages/fourier.h</itemPath>
+      <itemPath>fourier.h</itemPath>
       <itemPath>mask.h</itemPath>
       <itemPath>maxTreshHold.h</itemPath>
       <itemPath>readTiff.h</itemPath>
@@ -47,9 +47,9 @@
       <itemPath>RegionLL.c</itemPath>
       <itemPath>auxFunc.c</itemPath>
       <itemPath>binary.c</itemPath>
-      <itemPath>InputImages/complex.c</itemPath>
+      <itemPath>complex.c</itemPath>
       <itemPath>contrast.c</itemPath>
-      <itemPath>InputImages/fourier.c</itemPath>
+      <itemPath>fourier.c</itemPath>
       <itemPath>mask.c</itemPath>
       <itemPath>maxTreshHold.c</itemPath>
       <itemPath>peakfinder.c</itemPath>
@@ -111,14 +111,6 @@
       </item>
       <item path="InputImages/c2.tif" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="InputImages/complex.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="InputImages/complex.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="InputImages/fourier.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="InputImages/fourier.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="InputImages/oct_simul.tif" ex="false" tool="3" flavor2="0">
       </item>
       <item path="PointLL.c" ex="false" tool="0" flavor2="0">
@@ -137,9 +129,17 @@
       </item>
       <item path="binary.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="complex.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="complex.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="contrast.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="contrast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="fourier.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="fourier.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="mask.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -204,14 +204,6 @@
       </item>
       <item path="InputImages/c2.tif" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="InputImages/complex.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="InputImages/complex.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="InputImages/fourier.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="InputImages/fourier.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="InputImages/oct_simul.tif" ex="false" tool="3" flavor2="0">
       </item>
       <item path="PointLL.c" ex="false" tool="0" flavor2="0">
@@ -230,9 +222,17 @@
       </item>
       <item path="binary.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="complex.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="complex.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="contrast.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="contrast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="fourier.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="fourier.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="mask.c" ex="false" tool="0" flavor2="0">
       </item>

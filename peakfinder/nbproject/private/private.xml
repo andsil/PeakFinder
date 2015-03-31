@@ -7,11 +7,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/InputImages/fourier.c</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/InputImages/complex.c</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/binary.h</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/InputImages/complex.h</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/InputImages/fourier.h</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/contrast.c</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/peakfinder.c</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/fourier.c</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/binary.c</file>
         </group>
     </open-files>
