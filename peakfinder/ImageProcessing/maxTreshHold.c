@@ -32,7 +32,7 @@ RegionLL findRegions(TiffImage img){
     mark = (char**)malloc(sizeof(char*)*height);
     for(i=0; i<height; i++){
         //initialization to 0 -> NOTVISITED
-        mark[i] = (char*)calloc(sizeof(char)*width, sizeof(char));
+        mark[i] = (char*)calloc(width, sizeof(char));
     }
     
     //LIFO queue
@@ -140,89 +140,4 @@ int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, in
     }
     
     return sp;
-}
-
-/*
- binaria com threshlevel de 0.1 e registas op numero de pontos isolados
- aumentar threshllevel de forma exponencial e comparar o numero de pontos com o anterior
- * se for maior -> continuar a aumentar o threshlevel de forma exponencial
- * se for menor -> voltar e incrementar o threshlevel de forma linear
- *      se nao houver menos pontos devolver threshlevel encontrado
- *      se tiver igual ou mais continuar a aumentar linearmente
- calcular centroid de todos os pontos
- fazer diferenca entre centroids
- * se distancia for menor -> guarda na variavel wdim
- * caso contrario continua a percorrer os restantes pontos
- calcular a distancia minima de todos o pontos -> achar wdim
- fazer mascara
- deslocar mascara de forma a achar valor maximo do somatorio da intensidade de todos os pontos -> guarda as coordenadas
- */
-
-//VERY VERY Heavy calculations!!! Should be avoided!
-//Lower start ThreshHold lower performance -> higher calculation times
-TiffImage imageBinarization(TiffImage img, float startThreshHold, int maxIt){
-    TiffImage res = cloneTiffImage(img);
-    RegionLL auxRLL = NULL;
-    float threshHold = startThreshHold, ThreshHoldMax=0.0;
-    int it = 0;
-    float increment = (1.0-threshHold)/maxIt;
-    int countPrev = 0, countActual = 0, countMax=0;
-    
-    //validation
-    if(!res){
-        return NULL;
-    }
-    
-    //init
-    binImage8bitStatic(res, threshHold);
-    auxRLL = findRegions(res);
-    countActual = regionCount(auxRLL);
-    
-    fprintf(stdout, "Iterations:%d ThreshHold:%f Count:%d\n", it, threshHold, countActual);
-    
-    //loop
-    while(countPrev <= countActual && it < maxIt){
-        if(countActual>countMax){
-            countMax = countActual;
-            ThreshHoldMax = threshHold;
-            fprintf(stdout, "\tBetter ThreshHold -> ThreshHoldMax:%f Count:%d\n", ThreshHoldMax, countMax);
-        }
-        //increment threshold
-        threshHold += increment;
-        //free image previous image
-        destroyTiffImage(res);
-        res = cloneTiffImage(img);
-        //bin image
-        binImage8bitStatic(res, threshHold);
-        //get image Regions
-        auxRLL = findRegions(res);
-        //update counters
-        it++;
-        countPrev = countActual;
-        countActual = regionCount(auxRLL);
-        fprintf(stdout, "Iterations:%d ThreshHold:%f Count:%d\n", it, threshHold, countActual);
-    }
-    
-    fprintf(stdout, "Iterations:%d Best ThreshHold:%f\n", it, (countPrev > countActual)? ThreshHoldMax: threshHold);
-    
-    
-    if(countPrev > countActual){
-        //free image previous image
-        threshHold = ThreshHoldMax;
-        //free image previous image
-        destroyTiffImage(res);
-        res = cloneTiffImage(img);
-        //bin image
-        binImage8bitStatic(res, threshHold);
-        //get image Regions
-        auxRLL = findRegions(res);
-        countActual = regionCount(auxRLL);
-        fprintf(stdout, "\nIterations:%d ThreshHold:%f Count:%d\n", it, threshHold, countActual);
-    }
-    
-    //update image parameters
-    res->listRegions = auxRLL;
-    res->pointCount  = countActual;
-    
-    return res;
 }

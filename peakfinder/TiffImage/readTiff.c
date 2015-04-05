@@ -9,7 +9,7 @@ TiffImage readTiffImage(char* fileName){
     TIFF* tif = NULL;
     uint32 height=0, width=0;
     uint8 max=0, min=255;
-    int* intensityCounter = NULL;
+    int* histogram = NULL;
     uint16 sample, nSample;
     tdata_t buf = NULL;
     int row;
@@ -43,10 +43,10 @@ TiffImage readTiffImage(char* fileName){
     }
     
     //allocate space
-    intensityCounter = (int*) calloc(sizeof(int)*exp2(res->depth), sizeof(int));
+    histogram = (int*) calloc(exp2(res->depth), sizeof(int));
 
     //validation
-    if(!intensityCounter){
+    if(!histogram){
         goto error;
     }
     
@@ -61,16 +61,16 @@ TiffImage readTiffImage(char* fileName){
             TIFFReadScanline(tif, buf, row, sample);
             res->image[row]=(uint8*)buf;
             //printArray(res->image[row], res->width);
-            createStatistics(res->image[row], width, &max, &min, intensityCounter);
+            createStatistics(res->image[row], width, &max, &min, histogram);
         }
     }
     
     //register image statistics
-    res->instensityCounter = intensityCounter;
+    res->histogram = histogram;
     res->minimum = min;
     res->maximum = max;
-    res->median  = getMedian(intensityCounter, exp2(res->depth), width*height);
-    res->average = getAverage(intensityCounter, exp2(res->depth), width*height);
+    res->median  = getMedian(histogram, exp2(res->depth), width*height);
+    res->average = getAverage(histogram, exp2(res->depth), width*height);
     //showHistogram("imageHisto.csv",res->instensityCounter, exp2(res->depth));
     //printf("Min:%u Max:%u Median:%u\n", res->minimum, res->maximum, res->median);
     
@@ -84,6 +84,6 @@ error:
     if(res) free(res);
     if(tif) TIFFClose(tif);
     if(buf) _TIFFfree(buf);
-    if(intensityCounter) free(intensityCounter);
+    if(histogram) free(histogram);
     return NULL;
 }

@@ -1,37 +1,61 @@
 #include "binary.h"
 
-TiffImage binImage8bitStatic(TiffImage img, float threshlevel) {
+TiffImage binImage8bitStatic(TiffImage img, int threshold) {
     //variables
-    uint8 trgLevel = ((int) (255 * threshlevel)) % 255;
+    uint8 trgLevel = threshold % 255;
     return binImage8bit(img, trgLevel);
 }
 
-TiffImage binImage8bitStaticHalf(TiffImage img) {
-    //variables
-    uint8 trgLevel = 127;
-    return binImage8bit(img, trgLevel);
-}
+/* REF: https://github.com/MPS-UPB/10Team/blob/3846a66e28a956c9bb8f784a6851b3fb400d4627/BAM1/binarization.cpp
+ * calculate a global threshold for the image using Otsu algorithm
+ * params
+ * @histData: histogram of the image
+ * @y0, y1: Oy coordinates of the image
+ * @x0, x1: Ox coordinates of the image
+ * @return: global threshold for the image
+*/
+int getOtsuThreshold(int *histData, int y0, int y1, int x0, int x1) {
+    int height = y1 - y0;
+    int width  = x1 - x0;
 
-TiffImage binImage8bitAutoMedian(TiffImage img) {
-    //variables
-    uint8 trgLevel = img->median;
-    return binImage8bit(img, trgLevel);
-}
+    // Total number of pixels
+    int total = height * width;
 
-TiffImage binImage8bitAutoAverage(TiffImage img) {
-    //variables
-    uint8 trgLevel = img->average;
-    return binImage8bit(img, trgLevel);
-}
+    float sum = 0;
+    int t;
+    for (t = 0; t < 256 ; t++) 
+        sum += t * histData[t];
 
-TiffImage binImage8bitDynamic(TiffImage img, float threshlevel) {
-    uint8 trgLevel = ((int) ((img->maximum - img->minimum) * threshlevel)) % 255;
-    return binImage8bit(img, trgLevel);
-}
+    float sumB = 0;
+    int wB = 0;
+    int wF = 0;
 
-TiffImage binImage8bitDynamicHalf(TiffImage img) {
-    uint8 trgLevel = (img->maximum - img->minimum) / 2;
-    return binImage8bit(img, trgLevel);
+    float varMax = 0;
+    int threshold = 0;
+
+    for (t = 0 ; t < 256 ; t++) {
+        wB += histData[t];              // Weight Background
+        if (wB == 0) continue;
+
+        wF = total - wB;                 // Weight Foreground
+        if (wF == 0) break;
+
+        sumB += (float) (t * histData[t]);
+
+        float mB = sumB / wB;            // Mean Background
+        float mF = (sum - sumB) / wF;    // Mean Foreground
+
+        // Calculate Between Class Variance
+        float varBetween = (float)wB * (float)wF * (mB - mF) * (mB - mF);
+
+        // Check if new maximum found
+        if (varBetween > varMax) {
+            varMax = varBetween;
+            threshold = t;
+        }
+    }
+
+    return threshold;
 }
 
 TiffImage binImage8bit(TiffImage img, uint8 trgLevel) {
@@ -50,7 +74,7 @@ TiffImage binImage8bit(TiffImage img, uint8 trgLevel) {
     }
     for (i = 0; i < img->height; i++) {
         //put the value to 0
-        if (!(res[i] = (uint8*) calloc(sizeof (uint8) * img->width, sizeof (uint8)))) {
+        if (!(res[i] = (uint8*) calloc(img->width, sizeof(uint8)))) {
             goto error;
         }
     }

@@ -42,7 +42,7 @@ TiffImage histogramEqualization(TiffImage img){
     
     {//work-around for the goto scope error
         
-        int* histogram = res->instensityCounter;        
+        int* histogram = res->histogram;        
         // Calculate the size of image
         int levels = exp2(res->depth);
         int size = res->height * res->width;//check res!=0
@@ -75,7 +75,7 @@ TiffImage histogramEqualization(TiffImage img){
         }
         //equalized histogram
         for(i = 0; i < levels; i++){
-            res->instensityCounter[i] = (int)round(PsSk[i]*(levels-1));
+            res->histogram[i] = (int)round(PsSk[i]*(levels-1));
         }
         
         // Generate the equalized image
@@ -87,15 +87,15 @@ TiffImage histogramEqualization(TiffImage img){
         
         //initialize statistics
         for(i=0; i<levels; i++){
-            res->instensityCounter[i] = 0;
+            res->histogram[i] = 0;
         }
         res->minimum=255; res->maximum=0;
         //update statistics
         for(i=0; i<res->height; i++){
-            createStatistics(res->image[i], res->width, &res->maximum, &res->minimum, res->instensityCounter);
+            createStatistics(res->image[i], res->width, &res->maximum, &res->minimum, res->histogram);
         }
-        res->median  = getMedian(res->instensityCounter, levels, res->height*res->width);
-        res->average = getAverage(res->instensityCounter, levels, res->height*res->width);
+        res->median  = getMedian(res->histogram, levels, res->height*res->width);
+        res->average = getAverage(res->histogram, levels, res->height*res->width);
         
         return res;
     }

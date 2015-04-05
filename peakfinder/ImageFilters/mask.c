@@ -11,7 +11,7 @@ TiffImage aplyMask(TiffImage img, int r){
     
     int** intmask = (int**)malloc(sizeof(int*)*(2*r+1));
     for(i=0; i<(2*r+1); i++){
-        intmask[i] = (int*)calloc(sizeof(int)*(2*r+1), sizeof(int));
+        intmask[i] = (int*)calloc((2*r+1), sizeof(int));
     }
     
     //% I=1;I<=DIAMETRO;I++; -> X

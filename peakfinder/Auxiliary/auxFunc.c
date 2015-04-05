@@ -78,7 +78,7 @@ char* concat(int count, ...) {
 
     // Allocate memory to concat strings
     char *merged;
-    if(!(merged= calloc(sizeof(char),len)))
+    if(!(merged= calloc(len, sizeof(char))))
         return NULL;;
     int null_pos = 0;
 

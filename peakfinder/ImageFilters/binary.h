@@ -28,33 +28,17 @@ extern "C" {
  * to 0 (black) and 1 (white) if below or above the target
  * intensity level, respectively.
  */
-TiffImage binImage8bitStatic(TiffImage img, float threshlevel);
+TiffImage binImage8bitStatic(TiffImage img, int threshold);
 
-/**
- * Construct a binary image separating pixels at 127
- */
-TiffImage binImage8bitStaticHalf(TiffImage img);
-
-/**
- * Construct a binary image with the median intensity value
- */
-TiffImage binImage8bitAutoMedian(TiffImage img);
-
-/**
- * Construct a binary image with the average intensity value
- */
-TiffImage binImage8bitAutoAverage(TiffImage img);
-
-/**
- * Construct a binary image with the thresh level value applied to
- * the range of variation (maximum - minimum)
- */
-TiffImage binImage8bitDynamic(TiffImage img, float threshlevel);
-
-/**
- * Construct a binary image separating pixels at (max-min)/2
- */
-TiffImage binImage8bitDynamicHalf(TiffImage img);
+/* REF: https://github.com/MPS-UPB/10Team/blob/3846a66e28a956c9bb8f784a6851b3fb400d4627/BAM1/binarization.cpp
+ * calculate a global threshold for the image using Otsu algorithm
+ * params
+ * @histData: histogram of the image
+ * @y0, y1: Oy coordinates of the image
+ * @x0, x1: Ox coordinates of the image
+ * @return: global threshold for the image
+*/
+int getOtsuThreshold(int *histData, int y0, int y1, int x0, int x1);
 
 /**
  * Construct a binary image. If the pixel is below trgLevel its
