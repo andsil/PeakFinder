@@ -35,17 +35,20 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/PointLL.o \
-	${OBJECTDIR}/RegionLL.o \
-	${OBJECTDIR}/auxFunc.o \
-	${OBJECTDIR}/binary.o \
-	${OBJECTDIR}/contrast.o \
-	${OBJECTDIR}/mask.o \
-	${OBJECTDIR}/maxTreshHold.o \
-	${OBJECTDIR}/peakfinder.o \
-	${OBJECTDIR}/readTiff.o \
-	${OBJECTDIR}/tiffFile.o \
-	${OBJECTDIR}/writeTiff.o
+	${OBJECTDIR}/Auxiliary/auxFunc.o \
+	${OBJECTDIR}/Auxiliary/complex.o \
+	${OBJECTDIR}/ImageFilters/binary.o \
+	${OBJECTDIR}/ImageFilters/contrast.o \
+	${OBJECTDIR}/ImageFilters/fourier.o \
+	${OBJECTDIR}/ImageFilters/mask.o \
+	${OBJECTDIR}/ImageProcessing/PointLL.o \
+	${OBJECTDIR}/ImageProcessing/RegionLL.o \
+	${OBJECTDIR}/ImageProcessing/maxTreshHold.o \
+	${OBJECTDIR}/Main/main.o \
+	${OBJECTDIR}/Test/peakfinder.o \
+	${OBJECTDIR}/TiffImage/readTiff.o \
+	${OBJECTDIR}/TiffImage/tiffFile.o \
+	${OBJECTDIR}/TiffImage/writeTiff.o
 
 
 # C Compiler Flags
@@ -72,60 +75,75 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder ${OBJECTFILES} ${LDLIBSOPTIONS} -lm -ltiff
 
-${OBJECTDIR}/PointLL.o: PointLL.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/Auxiliary/auxFunc.o: Auxiliary/auxFunc.c 
+	${MKDIR} -p ${OBJECTDIR}/Auxiliary
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/PointLL.o PointLL.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Auxiliary/auxFunc.o Auxiliary/auxFunc.c
 
-${OBJECTDIR}/RegionLL.o: RegionLL.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/Auxiliary/complex.o: Auxiliary/complex.c 
+	${MKDIR} -p ${OBJECTDIR}/Auxiliary
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/RegionLL.o RegionLL.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Auxiliary/complex.o Auxiliary/complex.c
 
-${OBJECTDIR}/auxFunc.o: auxFunc.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageFilters/binary.o: ImageFilters/binary.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/auxFunc.o auxFunc.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/binary.o ImageFilters/binary.c
 
-${OBJECTDIR}/binary.o: binary.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageFilters/contrast.o: ImageFilters/contrast.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/binary.o binary.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/contrast.o ImageFilters/contrast.c
 
-${OBJECTDIR}/contrast.o: contrast.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageFilters/fourier.o: ImageFilters/fourier.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/contrast.o contrast.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/fourier.o ImageFilters/fourier.c
 
-${OBJECTDIR}/mask.o: mask.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageFilters/mask.o: ImageFilters/mask.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mask.o mask.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/mask.o ImageFilters/mask.c
 
-${OBJECTDIR}/maxTreshHold.o: maxTreshHold.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageProcessing/PointLL.o: ImageProcessing/PointLL.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageProcessing
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/maxTreshHold.o maxTreshHold.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageProcessing/PointLL.o ImageProcessing/PointLL.c
 
-${OBJECTDIR}/peakfinder.o: peakfinder.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageProcessing/RegionLL.o: ImageProcessing/RegionLL.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageProcessing
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/peakfinder.o peakfinder.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageProcessing/RegionLL.o ImageProcessing/RegionLL.c
 
-${OBJECTDIR}/readTiff.o: readTiff.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/ImageProcessing/maxTreshHold.o: ImageProcessing/maxTreshHold.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageProcessing
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/readTiff.o readTiff.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageProcessing/maxTreshHold.o ImageProcessing/maxTreshHold.c
 
-${OBJECTDIR}/tiffFile.o: tiffFile.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/Main/main.o: Main/main.c 
+	${MKDIR} -p ${OBJECTDIR}/Main
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tiffFile.o tiffFile.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Main/main.o Main/main.c
 
-${OBJECTDIR}/writeTiff.o: writeTiff.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/Test/peakfinder.o: Test/peakfinder.c 
+	${MKDIR} -p ${OBJECTDIR}/Test
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/writeTiff.o writeTiff.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Test/peakfinder.o Test/peakfinder.c
+
+${OBJECTDIR}/TiffImage/readTiff.o: TiffImage/readTiff.c 
+	${MKDIR} -p ${OBJECTDIR}/TiffImage
+	${RM} "$@.d"
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/TiffImage/readTiff.o TiffImage/readTiff.c
+
+${OBJECTDIR}/TiffImage/tiffFile.o: TiffImage/tiffFile.c 
+	${MKDIR} -p ${OBJECTDIR}/TiffImage
+	${RM} "$@.d"
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/TiffImage/tiffFile.o TiffImage/tiffFile.c
+
+${OBJECTDIR}/TiffImage/writeTiff.o: TiffImage/writeTiff.c 
+	${MKDIR} -p ${OBJECTDIR}/TiffImage
+	${RM} "$@.d"
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/TiffImage/writeTiff.o TiffImage/writeTiff.c
 
 # Subprojects
 .build-subprojects:
