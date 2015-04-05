@@ -4,18 +4,26 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>PointLL.h</itemPath>
-      <itemPath>RegionLL.h</itemPath>
-      <itemPath>auxFunc.h</itemPath>
-      <itemPath>binary.h</itemPath>
-      <itemPath>complex.h</itemPath>
-      <itemPath>contrast.h</itemPath>
-      <itemPath>fourier.h</itemPath>
-      <itemPath>mask.h</itemPath>
-      <itemPath>maxTreshHold.h</itemPath>
-      <itemPath>readTiff.h</itemPath>
-      <itemPath>tiffFile.h</itemPath>
-      <itemPath>writeTiff.h</itemPath>
+      <logicalFolder name="f3" displayName="Auxiliary" projectFiles="true">
+        <itemPath>Auxiliary/auxFunc.h</itemPath>
+        <itemPath>Auxiliary/complex.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="ImageFilters" projectFiles="true">
+        <itemPath>ImageFilters/binary.h</itemPath>
+        <itemPath>ImageFilters/contrast.h</itemPath>
+        <itemPath>ImageFilters/fourier.h</itemPath>
+        <itemPath>ImageFilters/mask.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="ImageProcessing" projectFiles="true">
+        <itemPath>ImageProcessing/PointLL.h</itemPath>
+        <itemPath>ImageProcessing/RegionLL.h</itemPath>
+        <itemPath>ImageProcessing/maxTreshHold.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="TiffImage" projectFiles="true">
+        <itemPath>TiffImage/readTiff.h</itemPath>
+        <itemPath>TiffImage/tiffFile.h</itemPath>
+        <itemPath>TiffImage/writeTiff.h</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -43,19 +51,32 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>PointLL.c</itemPath>
-      <itemPath>RegionLL.c</itemPath>
-      <itemPath>auxFunc.c</itemPath>
-      <itemPath>binary.c</itemPath>
-      <itemPath>complex.c</itemPath>
-      <itemPath>contrast.c</itemPath>
-      <itemPath>fourier.c</itemPath>
-      <itemPath>mask.c</itemPath>
-      <itemPath>maxTreshHold.c</itemPath>
-      <itemPath>peakfinder.c</itemPath>
-      <itemPath>readTiff.c</itemPath>
-      <itemPath>tiffFile.c</itemPath>
-      <itemPath>writeTiff.c</itemPath>
+      <logicalFolder name="f3" displayName="Auxiliary" projectFiles="true">
+        <itemPath>Auxiliary/auxFunc.c</itemPath>
+        <itemPath>Auxiliary/complex.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="ImageFilters" projectFiles="true">
+        <itemPath>ImageFilters/binary.c</itemPath>
+        <itemPath>ImageFilters/contrast.c</itemPath>
+        <itemPath>ImageFilters/fourier.c</itemPath>
+        <itemPath>ImageFilters/mask.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="ImageProcessing" projectFiles="true">
+        <itemPath>ImageProcessing/PointLL.c</itemPath>
+        <itemPath>ImageProcessing/RegionLL.c</itemPath>
+        <itemPath>ImageProcessing/maxTreshHold.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Main" projectFiles="true">
+        <itemPath>Main/main.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="Test" projectFiles="true">
+        <itemPath>Test/peakfinder.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="TiffImage" projectFiles="true">
+        <itemPath>TiffImage/readTiff.c</itemPath>
+        <itemPath>TiffImage/tiffFile.c</itemPath>
+        <itemPath>TiffImage/writeTiff.c</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -70,9 +91,7 @@
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
-    <Elem>InputImages</Elem>
-    <Elem>OutputImages</Elem>
-    <Elem>OutputLog</Elem>
+    <Elem>.</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -87,10 +106,49 @@
           <commandLine>-lm -ltiff -O3</commandLine>
           <warningLevel>2</warningLevel>
         </cTool>
+        <ccTool>
+          <warningLevel>2</warningLevel>
+        </ccTool>
         <linkerTool>
           <commandLine>-lm -ltiff</commandLine>
         </linkerTool>
       </compileType>
+      <item path="Auxiliary/auxFunc.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Auxiliary/auxFunc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Auxiliary/complex.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Auxiliary/complex.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/binary.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/binary.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/contrast.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/contrast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/fourier.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/fourier.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/mask.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/mask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageProcessing/PointLL.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageProcessing/PointLL.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageProcessing/RegionLL.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageProcessing/RegionLL.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageProcessing/maxTreshHold.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageProcessing/maxTreshHold.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="InputImages/a0.tif" ex="false" tool="3" flavor2="0">
       </item>
       <item path="InputImages/a1.tif" ex="false" tool="3" flavor2="0">
@@ -113,55 +171,21 @@
       </item>
       <item path="InputImages/oct_simul.tif" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="PointLL.c" ex="false" tool="0" flavor2="0">
+      <item path="Main/main.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="PointLL.h" ex="false" tool="3" flavor2="0">
+      <item path="Test/peakfinder.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="RegionLL.c" ex="false" tool="0" flavor2="0">
+      <item path="TiffImage/readTiff.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="RegionLL.h" ex="false" tool="3" flavor2="0">
+      <item path="TiffImage/readTiff.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="auxFunc.c" ex="false" tool="0" flavor2="0">
+      <item path="TiffImage/tiffFile.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="auxFunc.h" ex="false" tool="3" flavor2="0">
+      <item path="TiffImage/tiffFile.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="binary.c" ex="false" tool="0" flavor2="0">
+      <item path="TiffImage/writeTiff.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="binary.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="complex.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="complex.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="contrast.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="contrast.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="fourier.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="fourier.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="mask.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="mask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="maxTreshHold.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="maxTreshHold.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="peakfinder.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="readTiff.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="readTiff.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="tiffFile.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tiffFile.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="writeTiff.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="writeTiff.h" ex="false" tool="3" flavor2="0">
+      <item path="TiffImage/writeTiff.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -184,6 +208,42 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="Auxiliary/auxFunc.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Auxiliary/auxFunc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Auxiliary/complex.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Auxiliary/complex.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/binary.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/binary.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/contrast.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/contrast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/fourier.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/fourier.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/mask.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/mask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageProcessing/PointLL.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageProcessing/PointLL.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageProcessing/RegionLL.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageProcessing/RegionLL.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageProcessing/maxTreshHold.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageProcessing/maxTreshHold.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="InputImages/a0.tif" ex="false" tool="3" flavor2="0">
       </item>
       <item path="InputImages/a1.tif" ex="false" tool="3" flavor2="0">
@@ -206,55 +266,21 @@
       </item>
       <item path="InputImages/oct_simul.tif" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="PointLL.c" ex="false" tool="0" flavor2="0">
+      <item path="Main/main.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="PointLL.h" ex="false" tool="3" flavor2="0">
+      <item path="Test/peakfinder.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="RegionLL.c" ex="false" tool="0" flavor2="0">
+      <item path="TiffImage/readTiff.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="RegionLL.h" ex="false" tool="3" flavor2="0">
+      <item path="TiffImage/readTiff.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="auxFunc.c" ex="false" tool="0" flavor2="0">
+      <item path="TiffImage/tiffFile.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="auxFunc.h" ex="false" tool="3" flavor2="0">
+      <item path="TiffImage/tiffFile.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="binary.c" ex="false" tool="0" flavor2="0">
+      <item path="TiffImage/writeTiff.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="binary.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="complex.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="complex.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="contrast.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="contrast.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="fourier.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="fourier.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="mask.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="mask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="maxTreshHold.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="maxTreshHold.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="peakfinder.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="readTiff.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="readTiff.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="tiffFile.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tiffFile.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="writeTiff.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="writeTiff.h" ex="false" tool="3" flavor2="0">
+      <item path="TiffImage/writeTiff.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

@@ -3,7 +3,7 @@
 #define	FOURIER_H
 
 #include <tiff.h> //uint8
-#include "complex.h"
+#include "../Auxiliary/complex.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -12,7 +12,7 @@ extern "C" {
 #define FFT_SIZE 1024
     
 void fourier(Complex** out,  uint8** in );
-void inverseFourier( double out[][FFT_SIZE], Complex in[][FFT_SIZE]);
+void inverseFourier(uint8** out, Complex** in);
 void fourierSpectrumImage(uint8** out, Complex** in);
 
 void fourier1D(Complex out[], double in[]);

@@ -1,7 +1,7 @@
 #ifndef MASK_H
 #define	MASK_H
 
-#include "tiffFile.h"
+#include "../TiffImage/tiffFile.h"
 
 #ifdef	__cplusplus
 extern "C" {

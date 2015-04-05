@@ -4,10 +4,10 @@
 #include <stdio.h>  //fprintf
 #include <tiff.h>   //uint8
 
-#include "auxFunc.h" //isInside
-#include "tiffFile.h"
+#include "../Auxiliary/auxFunc.h" //isInside
+#include "../TiffImage/tiffFile.h"
 #include "RegionLL.h" //RegionLL
-#include "binary.h" //binImage8bitStatic
+#include "../ImageFilters/binary.h" //binImage8bitStatic
 
 #ifdef	__cplusplus
 extern "C" {

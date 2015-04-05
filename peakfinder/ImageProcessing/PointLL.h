@@ -6,7 +6,7 @@
 #include <float.h>  //FLT_MAX
 
 #include "tiff.h"   //uint8
-#include "auxFunc.h" //isInside
+#include "../Auxiliary/auxFunc.h" //isInside
 
 #ifdef	__cplusplus
 extern "C" {

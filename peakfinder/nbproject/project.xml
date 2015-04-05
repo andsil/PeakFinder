@@ -10,9 +10,7 @@
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
-                <sourceRootElem>InputImages</sourceRootElem>
-                <sourceRootElem>OutputImages</sourceRootElem>
-                <sourceRootElem>OutputLog</sourceRootElem>
+                <sourceRootElem>.</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

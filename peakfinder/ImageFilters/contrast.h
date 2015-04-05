@@ -7,8 +7,8 @@
 #include <string.h>//strcat, strlen, etc
 //#include <unistd.h>//usleep
 
-#include "auxFunc.h"
-#include "tiffFile.h"
+#include "../Auxiliary/auxFunc.h"
+#include "../TiffImage/tiffFile.h"
 
 #ifdef	__cplusplus
 extern "C" {

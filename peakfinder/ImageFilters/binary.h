@@ -4,7 +4,7 @@
 #include <tiff.h>//uint8
 #include <math.h>//exp,...
 
-#include "tiffFile.h"//TiffImage
+#include "../TiffImage/tiffFile.h"//TiffImage
 
 #ifdef	__cplusplus
 extern "C" {

@@ -1,3 +1,5 @@
+#ifdef RELEASE
+
 #include <stdio.h>//fgets, fprintf, etc
 #include <stdlib.h>//realloc
 #include <string.h>//strchr
@@ -5,16 +7,16 @@
 //#include <inttypes.h>//PRId32
 //#include <unistd.h>//usleep
 
-#include "readTiff.h"//readTiffImage
-#include "writeTiff.h"//writeTiffImage
-#include "contrast.h"//histogramEqualization
-#include "binary.h"//binImage8bit...
-#include "auxFunc.h"
-#include "RegionLL.h"
-#include "maxTreshHold.h" //findRegion, imageBinarization
-#include "mask.h"
-#include "complex.h"
-#include "fourier.h"
+#include "../TiffImage/readTiff.h"//readTiffImage
+#include "../TiffImage/writeTiff.h"//writeTiffImage
+#include "../ImageFilters/contrast.h"//histogramEqualization
+#include "../ImageFilters/binary.h"//binImage8bit...
+#include "../Auxiliary/auxFunc.h"
+#include "../ImageProcessing/RegionLL.h"
+#include "../ImageProcessing/maxTreshHold.h" //findRegion, imageBinarization
+#include "../ImageFilters/mask.h"
+#include "../Auxiliary/complex.h"
+#include "../ImageFilters/fourier.h"
 
 /*****************************************************************
 ########################    PROTOTYPES    #######################
@@ -36,7 +38,7 @@ char  alreadyExists(Region *neighbors, int pointCount, int id);
 /*****************************************************************
 ########################    FUNCTIONS     #######################
 *****************************************************************/
-int main(int argc, char* argv[]) {
+int main_DEACTIVATED(int argc, char* argv[]) {
     
     //Parse filename to image
     char* inputFileName;
@@ -63,146 +65,35 @@ int main(int argc, char* argv[]) {
         goto error;
     }
     
-    //test detail data
-    printf("ndirs=%d ,"
-            "fileName=%s ,"
-            "width=%d ,"
-            "height=%u ,"
-            "config=%u ,"
-            "fillOrder=%d ,"
-            "nSamples=%u ,"
-            "depth=%u ,"
-            "photometric=%u ,"
-            "resUnit=%u ,"
-            "xRes=%f ,"
-            "yRes=%f ,"
-            "maximum=%u ,"
-            "minimum=%u ,"
-            "median=%u,"
-            "average=%u\n",
-            image->ndirs,
-            image->fileName,
-            image->width,
-            image->height,
-            image->config,
-            image->fillOrder,
-            image->nSamples,
-            image->depth,
-            image->photometric,
-            image->resUnit,
-            image->xRes,
-            image->yRes,
-            image->maximum,
-            image->minimum,
-            image->median,
-            image->average);
-    
-    FILE* out = fopen("OutputLog/outMatrix.txt", "w");
-    
-    //view image intensity
-    int width = image->width, height = image->height;
-    printIntMatrix(out, image->image, width, height);
-    fprintf(out, "\n\n\n");
-    
     //contrast image
     //TiffImage contrasted = histogramEqualization(image);
     TiffImage contrasted = histogramEqualization(binary_gaussianFilter(image));
     
-    printf("ndirs=%d ,"
-            "fileName=%s ,"
-            "width=%d ,"
-            "height=%u ,"
-            "config=%u ,"
-            "fillOrder=%d ,"
-            "nSamples=%u ,"
-            "depth=%u ,"
-            "photometric=%u ,"
-            "resUnit=%u ,"
-            "xRes=%f ,"
-            "yRes=%f ,"
-            "maximum=%u ,"
-            "minimum=%u ,"
-            "median=%u,"
-            "average=%u\n",
-            contrasted->ndirs,
-            contrasted->fileName,
-            contrasted->width,
-            contrasted->height,
-            contrasted->config,
-            contrasted->fillOrder,
-            contrasted->nSamples,
-            contrasted->depth,
-            contrasted->photometric,
-            contrasted->resUnit,
-            contrasted->xRes,
-            contrasted->yRes,
-            contrasted->maximum,
-            contrasted->minimum,
-            contrasted->median,
-            contrasted->average);
-    
-    //view image intensity
-    width = contrasted->width; height = contrasted->height;
-    printIntMatrix(out, contrasted->image, width, height);
-    
     //Write Image
-    fprintf(stdout, "Writing Image\n");fflush(stdout);//usleep(500000);//500ms
+    fprintf(stdout, "Writing Image\n");fflush(stdout);
     int res = writeTiffImage(contrasted->fileName, contrasted);
     
-    //->TEST!!!
-    TiffImage aux;
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
-    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/mean.tif", image=binary_meanFilter(aux));//free(aux);
-    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/gaussian.tif", image=binary_gaussianFilter(aux));//free(aux);
-    //contrasted = histogramEqualization(image);
-    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/median.tif", aux=binary_medianFilter(aux));free(aux);
+    //Binarizing
+    TiffImage aux = cloneTiffImage(contrasted);
     
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Opening.tif", binary_opening(binImage8bitStatic(aux, 0.7)));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.7)));free(aux);
-    /*aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Opening.tif", binary_opening(binImage8bitStatic(aux, 0.8)));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.8)));free(aux);
-    */
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
-    
-    aux = cloneTiffImage(image);
-    /*Filename*/
-    char append[] = "_fourier.tiff";
-    char* aux_fileName = remove_ext(aux->fileName, '.', '/');
-    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_fileName)+strlen(append)+1))){
-        goto error;
-    }
-    aux->fileName = concat(2, aux_fileName, append);
-    free(aux_fileName);
-    /*End Filename*/
-    fprintf(stdout, "Fourier\n");fflush(stdout);
-    Complex** outComp = (Complex**) malloc (sizeof(Complex*)*height);
-    int u;
-    for(u=0; u<height; u++){
-        outComp[u] = (Complex*) malloc (sizeof(Complex)*width);
-    }
-    fourier(outComp, aux->image);
-    fourierSpectrumImage(aux->image, outComp);
-    res = writeTiffImage(aux->fileName,aux);
-    fprintf(stdout, "Done\n");
-    destroyTiffImage(aux);
-    
-    aux = cloneTiffImage(contrasted);
     fprintf(stdout, "Binarizing\n");
+#if 1
     binImage8bitStatic(aux, 0.684);
-    res = writeTiffImage("OutputImages/bina.tif",aux);
-    fprintf(stdout, "Done\n");
+#else
     //Heavy calculations!!! Should be avoided!
     //aux = imageBinarization(aux, 0.6, 100);//MEMORY LEAK! THERE ARE 2 IMAGE-> 'AUX' ARG AND 'AUX' RETURN -> 'AUX' ARG POINTER IS LOST WITHOUT MEMORY RELEASE!
+#endif
+    res = writeTiffImage("OutputImages/bina.tif",aux);
+    
     image->listRegions = aux->listRegions = findRegions(aux);
     image->pointCount  = aux->pointCount  = regionCount(aux->listRegions);
+    
     if(aux != NULL){
         fprintf(stdout, "OK\n");
     } else {
         fprintf(stdout, "FAIL\n");
     }
+    
     RegionLL regionList = aux->listRegions;
     if(regionList != NULL){
         RegionLL auxRL = getLastRegionEntry(regionList);
@@ -222,15 +113,19 @@ int main(int argc, char* argv[]) {
     } else {
         fprintf(stderr, "No list to present!\n");
     }
-    fprintf(stdout, "BEGIN\n");
+    
     int wdim = getDistances(aux);
+    
     TiffImage masked = aplyMask(image, wdim/2);
     //getWDim(aux);//->Does not work (something wrong)
-    fprintf(stdout, "END wdim:%d\n",wdim);
-    res = writeTiffImage("OutputImages/static70WithCentroid.tiff", aux);
+    
+    fprintf(stdout, "wdim:%d\n",wdim);
+    
+    res = writeTiffImage("OutputImages/BinarizedWithCentroid.tiff", aux);
     res = writeTiffImage("OutputImages/Masked.tiff", masked);
+    
     free(aux);
-    //->END TEST!!!
+    free(masked);
     
     //validation
     if(res != 0){
@@ -240,8 +135,6 @@ int main(int argc, char* argv[]) {
     //clean up
     destroyTiffImage(image);
     destroyTiffImage(contrasted);
-    fflush(out);
-    fclose(out);
     return 0;
 
 //error handling
@@ -707,3 +600,5 @@ char alreadyExists(Region *neighbors, int pointCount, int id){
     }
     return FALSE;
 }
+
+#endif

@@ -8,7 +8,7 @@
 #include <tiff.h>//uint8/16/32
 #include <tiffio.h>
 
-#include "RegionLL.h"//tdir_t
+#include "../ImageProcessing/RegionLL.h"//tdir_t
 
 #ifdef	__cplusplus
 extern "C" {
