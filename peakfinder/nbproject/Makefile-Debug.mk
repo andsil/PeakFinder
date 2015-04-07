@@ -37,10 +37,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/Auxiliary/auxFunc.o \
 	${OBJECTDIR}/Auxiliary/complex.o \
-	${OBJECTDIR}/ImageFilters/binary.o \
+	${OBJECTDIR}/ImageFilters/clahe.o \
 	${OBJECTDIR}/ImageFilters/contrast.o \
+	${OBJECTDIR}/ImageFilters/filters.o \
 	${OBJECTDIR}/ImageFilters/fourier.o \
 	${OBJECTDIR}/ImageFilters/mask.o \
+	${OBJECTDIR}/ImageFilters/transformations.o \
 	${OBJECTDIR}/ImageProcessing/PointLL.o \
 	${OBJECTDIR}/ImageProcessing/RegionLL.o \
 	${OBJECTDIR}/ImageProcessing/maxTreshHold.o \
@@ -85,15 +87,20 @@ ${OBJECTDIR}/Auxiliary/complex.o: Auxiliary/complex.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Auxiliary/complex.o Auxiliary/complex.c
 
-${OBJECTDIR}/ImageFilters/binary.o: ImageFilters/binary.c 
+${OBJECTDIR}/ImageFilters/clahe.o: ImageFilters/clahe.c 
 	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/binary.o ImageFilters/binary.c
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/clahe.o ImageFilters/clahe.c
 
 ${OBJECTDIR}/ImageFilters/contrast.o: ImageFilters/contrast.c 
 	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
 	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/contrast.o ImageFilters/contrast.c
+
+${OBJECTDIR}/ImageFilters/filters.o: ImageFilters/filters.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageFilters
+	${RM} "$@.d"
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/filters.o ImageFilters/filters.c
 
 ${OBJECTDIR}/ImageFilters/fourier.o: ImageFilters/fourier.c 
 	${MKDIR} -p ${OBJECTDIR}/ImageFilters
@@ -104,6 +111,11 @@ ${OBJECTDIR}/ImageFilters/mask.o: ImageFilters/mask.c
 	${MKDIR} -p ${OBJECTDIR}/ImageFilters
 	${RM} "$@.d"
 	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/mask.o ImageFilters/mask.c
+
+${OBJECTDIR}/ImageFilters/transformations.o: ImageFilters/transformations.c 
+	${MKDIR} -p ${OBJECTDIR}/ImageFilters
+	${RM} "$@.d"
+	$(COMPILE.c) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ImageFilters/transformations.o ImageFilters/transformations.c
 
 ${OBJECTDIR}/ImageProcessing/PointLL.o: ImageProcessing/PointLL.c 
 	${MKDIR} -p ${OBJECTDIR}/ImageProcessing

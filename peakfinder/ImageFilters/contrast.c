@@ -105,3 +105,105 @@ error:
     if(res) destroyTiffImage(res);
     return NULL;
 }
+
+/* REF: https://github.com/MPS-UPB/10Team/blob/3846a66e28a956c9bb8f784a6851b3fb400d4627/BAM1/binarization.cpp
+ * calculate a global threshold for the image using Otsu algorithm
+ * params
+ * @histData: histogram of the image
+ * @y0, y1: Oy coordinates of the image
+ * @x0, x1: Ox coordinates of the image
+ * @return: global threshold for the image
+*/
+int getOtsuThreshold(int *histData, int y0, int y1, int x0, int x1) {
+    int height = y1 - y0;
+    int width  = x1 - x0;
+
+    // Total number of pixels
+    int total = height * width;
+
+    float sum = 0;
+    int t;
+    for (t = 0; t < 256 ; t++) 
+        sum += t * histData[t];
+
+    float sumB = 0;
+    int wB = 0;
+    int wF = 0;
+
+    float varMax = 0;
+    int threshold = 0;
+
+    for (t = 0 ; t < 256 ; t++) {
+        wB += histData[t];              // Weight Background
+        if (wB == 0) continue;
+
+        wF = total - wB;                 // Weight Foreground
+        if (wF == 0) break;
+
+        sumB += (float) (t * histData[t]);
+
+        float mB = sumB / wB;            // Mean Background
+        float mF = (sum - sumB) / wF;    // Mean Foreground
+
+        // Calculate Between Class Variance
+        float varBetween = (float)wB * (float)wF * (mB - mF) * (mB - mF);
+
+        // Check if new maximum found
+        if (varBetween > varMax) {
+            varMax = varBetween;
+            threshold = t;
+        }
+    }
+
+    return threshold;
+}
+
+TiffImage binImage8bit(TiffImage img, uint8 threshold) {
+    //variables
+    int i, j;
+    uint8** res = NULL;
+
+    //validation
+    if (!img) {
+        goto error;
+    }
+
+    //allocate memory for bin image
+    if (!(res = (uint8**) malloc(sizeof (uint8*) * img->height))) {
+        goto error;
+    }
+    for (i = 0; i < img->height; i++) {
+        //put the value to 0
+        if (!(res[i] = (uint8*) calloc(img->width, sizeof(uint8)))) {
+            goto error;
+        }
+    }
+
+    //construct bin image
+    for (i = 0; i < img->height; i++) {
+        for (j = 0; j < img->width; j++) {
+            if (img->image[i][j] > threshold)
+                res[i][j] = WHITE;
+        }
+        //free line to be replaced
+        free(img->image[i]);
+    }
+
+    //free array of pointers
+    free(img->image);
+
+    //register image pointer to binary matrix created
+    img->image = res;
+
+    return img;
+
+error:
+    fprintf(stderr, "[BINIMG]An error occurred\n");
+    if (res) {
+        for (i = 0; i < img->height; i++) {
+            if (res[i]) free(res[i]);
+        }
+        free(res);
+    }
+    return NULL;
+}

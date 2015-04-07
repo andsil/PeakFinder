@@ -1,57 +1,55 @@
-#ifndef MAXTRESHLEVEL_H
-#define	MAXTRESHLEVEL_H
+#ifndef FILTERS_H
+#define	FILTERS_H
 
-#include <stdio.h>  //fprintf
-#include <tiff.h>   //uint8
+#include <tiff.h>//uint8
+#include <math.h>//exp,...
 
-#include "../Auxiliary/auxFunc.h" //isInside
-#include "../TiffImage/tiffFile.h"
-#include "RegionLL.h" //RegionLL
+#include "../TiffImage/tiffFile.h"//TiffImage
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
 /*****************************************************************
 ########################  DATA STRUCTURES #######################
  *****************************************************************/
-
-//Useful definitions
-//QUEUE STATUS
-#define NOTVISITED  0
-#define QUEUED      1
-#define VISITED     2
-
-//COLOR VALUES
-#define WHITE       255
-#define BLACK       0
     
 /*****************************************************************
 ######################  END DATA STRUCTURES #####################
  *****************************************************************/
-
+    
 /*****************************************************************
 ########################    PROTOTYPES    #######################
  *****************************************************************/
-/**
- * Go through the image pixels and aggregates them in Regions
- */
-RegionLL findRegions(TiffImage img);
 
 /**
- * Checks if the point (j,i) -> (x,y) is white. If it is add it to the queue.
- * Returns the new stack pointer if there were changes.  is.
+ * Gets the mean of the surrounding pixels
  */
-int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, int j);
+TiffImage meanFilter(TiffImage img);
 
+/**
+ * Gets the median of the surrounding pixels
+ */
+TiffImage medianFilter(TiffImage img);
+
+/**
+ * Sigma filter
+ */
+TiffImage sigmaFilter(TiffImage img, int sigma);
+
+/**
+ * gaussian filter
+ * sigma=1
+ */
+TiffImage gaussianFilter(TiffImage img);
+
+// reflected indexing for border processing
+int reflect(int M, int x);
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
  *****************************************************************/
-
-
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* MAXTRESHLEVEL_H */
+#endif	/* FILTERS_H */
 

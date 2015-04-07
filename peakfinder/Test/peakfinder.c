@@ -9,14 +9,16 @@
 
 #include "../TiffImage/readTiff.h"//readTiffImage
 #include "../TiffImage/writeTiff.h"//writeTiffImage
-#include "../ImageFilters/contrast.h"//histogramEqualization
-#include "../ImageFilters/binary.h"//binImage8bit...
-#include "../Auxiliary/auxFunc.h"
-#include "../ImageProcessing/RegionLL.h"
-#include "../ImageProcessing/maxTreshHold.h" //findRegion, imageBinarization
-#include "../ImageFilters/mask.h"
-#include "../Auxiliary/complex.h"
-#include "../ImageFilters/fourier.h"
+#include "../ImageFilters/contrast.h"//histogramEqualization,binImage8bit
+#include "../Auxiliary/auxFunc.h"//
+#include "../ImageProcessing/RegionLL.h"//RegionLL
+#include "../ImageProcessing/maxTreshHold.h" //findRegion
+#include "../ImageFilters/mask.h"//aplyMask
+#include "../ImageFilters/filters.h"//mean, median, gaussian,...
+#include "../ImageFilters/clahe.h"//CLAHE
+#include "../ImageFilters/transformations.h"//closing
+#include "../Auxiliary/complex.h"//Complex
+#include "../ImageFilters/fourier.h"//fourier, inverseFourier,...
 
 /*****************************************************************
 ########################    PROTOTYPES    #######################
@@ -31,9 +33,6 @@ int   getDistances(TiffImage img);
 int   compare( const void* a, const void* b);
 char  alreadyExists(Region *neighbors, int pointCount, int id);
 
-//exprimental -> create a max cicle inside a square d²
-uint8** intExtFilter(int d);
-
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
 *****************************************************************/
@@ -47,6 +46,7 @@ int main(int argc, char* argv[]) {
     char* inputFileName;
     char* aux_FileName;
     int i,j;
+    int res;
     
     if(argc<2){//iterative
         //printf("Put the path to File:");
@@ -82,8 +82,12 @@ int main(int argc, char* argv[]) {
             image->maximum, image->minimum, image->median, image->average);fflush(stdout);
     
 /* BEGIN HISTOGRAM EQUILIZER CONTRAST */
-    //TiffImage contrasted = histogramEqualization(image);
-    TiffImage contrasted = histogramEqualization(binary_gaussianFilter(image));
+    TiffImage contrasted;
+    /*
+    //contrasted = histogramEqualization(image);
+    contrasted = histogramEqualization(gaussianFilter(image));
+    //contrasted = cloneTiffImage(image);
+    //CLAHE(&(contrasted->image[0][0]), (unsigned int)contrasted->width, (unsigned int)contrasted->height,contrasted->minimum, contrasted->maximum, 8, 8, 64, 0.25);
     
     fprintf(stdout, "Contrasted Image:\n");fflush(stdout);
     printf("ndirs=%d ,fileName=%s ,width=%d ,height=%u ,config=%u ,"
@@ -99,9 +103,9 @@ int main(int argc, char* argv[]) {
     
     //Write Image
     fprintf(stdout, "Writing contrasted Image\n");fflush(stdout);
-    int res = writeTiffImage(contrasted->fileName, contrasted);
+    res = writeTiffImage(contrasted->fileName, contrasted);*/
+    //int res = writeTiffImage("clahe.tif", contrasted);
 /* END HISTOGRAM EQUILIZER CONTRAST */
-
     TiffImage aux;
 
 //->BEGIN TEST!!!
@@ -126,7 +130,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Fourier...\n");fflush(stdout);
     
     aux = cloneTiffImage(image);
-    
+
     /* FILENAME */
     char fourierExt[] = "_fourier.tif";
     aux_FileName = remove_ext(aux->fileName, '.', '/');
@@ -150,21 +154,7 @@ int main(int argc, char* argv[]) {
     
 /* BEGIN TEST FOURIER FILTERING */
     
-    uint8** intmask = intExtFilter(aux->height);
-    
-    fprintf(stdout, "Transform filter into frequency domain...\n");fflush(stdout);
-
-    //Transform filter into frequency domain
-    fourier(outCompFilter, intmask, aux->height);
-    
     fprintf(stdout, "apply filter...\n");fflush(stdout);
-    //apply filter
-    /*for(i=0; i<aux->height; i++){
-        for(j=0; j<aux->height; j++){
-            outCompFilter[i][j].Im = outComp[i][j].Im * intmask[i][j];
-            //outCompFilter[i][j].Re = outComp[i][j].Re * intmask[i][j];
-        }
-    }*/
     
     //REF: https://github.com/ajatix/iplab/blob/3de740d83e05a449acfa37b9c1f506893176ac49/Expt6/FFTAnalysis.cpp
     //Butterworth_HPF 
@@ -187,18 +177,34 @@ int main(int argc, char* argv[]) {
     
     //LPF
     D = sqrt(pow(width,2)+pow(height,2));//pitagoras
-    D = (int)D*0.99; //95% -> deletes center
+    D = (int)D*0.99; //99% -> deletes center
     for(i=0;i<height;i++) {
         for(j=0;j<width;j++) {
-            if(((i-height/2)*(i-height/2)+(j-width/2)*(j-width/2))<(D/2*D/2)) {
-                outComp[i][j].Re = outComp[i][j].Re;
-                outComp[i][j].Im = outComp[i][j].Im;
-            } else {
+            if( (pow(i-height/2,2) + pow(j-width/2,2)) >= pow(D/2,2) ) {
                 outComp[i][j].Re = 0;
                 outComp[i][j].Im = 0;
             }
         }
     }
+    
+    /**/
+    //HPF
+    D = sqrt(pow(width,2)+pow(height,2));//pitagoras
+    D = (int)D*0.5; //95% -> deletes center
+    for(i=0;i<height;i++) {
+        for(j=0;j<width;j++) {
+            if ((i<(height/2+D/2)) && (i>(height/2-D/2)) && (j<(width/2+D/2)) && (j>(width/2-D/2))) {
+            //if(((i-height/2)*(i-height/2)+(j-width/2)*(j-width/2))>(D/2*D/2)) {
+                outComp[i][j].Re = 0;
+                outComp[i][j].Im = 0;
+            }
+            else {
+                outComp[i][j].Re = outComp[i][j].Re;
+                outComp[i][j].Im = outComp[i][j].Im;
+            }
+        }
+    }
+    /**/
     
     fprintf(stdout, "inverseFourier...\n");fflush(stdout);
     //return to space domain
@@ -217,7 +223,7 @@ int main(int argc, char* argv[]) {
     res = writeTiffImage(aux->fileName,aux);
     
     inverseFourier(aux->image, outComp, aux->height);
-    contrasted = histogramEqualization(binary_gaussianFilter(aux));
+    contrasted = histogramEqualization(aux);
     fprintf(stdout, "Contrasted Image:\n");fflush(stdout);
     printf("ndirs=%d ,fileName=%s ,width=%d ,height=%u ,config=%u ,"
             "fillOrder=%d ,nSamples=%u ,depth=%u ,photometric=%u ,"
@@ -229,6 +235,7 @@ int main(int argc, char* argv[]) {
             contrasted->resUnit, contrasted->xRes, contrasted->yRes,
             contrasted->maximum, contrasted->minimum, contrasted->median,
             contrasted->average);
+    
     //Write Image
     fprintf(stdout, "Writing contrasted Image\n");fflush(stdout);
     res = writeTiffImage(contrasted->fileName, contrasted);
@@ -256,18 +263,36 @@ int main(int argc, char* argv[]) {
 #if 1
     //otsu's automatic binarization method
     int trg = getOtsuThreshold(aux->histogram, 0, aux->height, 0, aux->width);
-    fprintf(stdout, "Threshold:%d\n",trg);
-    binImage8bitStatic(aux, trg);
+    fprintf(stdout, "Threshold:%d\n", trg);
+    binImage8bit(aux, trg);
 #else
     //static threshold
     binImage8bitStatic(aux, (int) (0.684*255));
 #endif
     res = writeTiffImage(aux->fileName,aux);
     
+    /* BEGIN CLOSING*/
+    
+    /* FILENAME */
+    char binarizedClosedExt[] = "_binarizedClosed.tif";
+    aux_FileName = remove_ext(aux->fileName, '.', '/');
+    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(binarizedClosedExt)+1))){
+        goto error;
+    }
+    aux->fileName = concat(2, aux_FileName, binarizedClosedExt);
+    free(aux_FileName);
+    /* END FILENAME */
+    
+    aux = closing(aux);
+    
+    res = writeTiffImage(aux->fileName,aux);
+    
+    /* END CLOSING */
+    
     fprintf(stdout, "Done\n");fflush(stdout);
     
 /* END BINARIZING */
-    
+    return 0;
 /* BEGIN REGION DETECTION*/
     fprintf(stdout, "Detecting regions...\n");fflush(stdout);
     
@@ -813,32 +838,5 @@ char alreadyExists(Region *neighbors, int pointCount, int id){
     }
     return FALSE;
 }
-
-uint8** intExtFilter(int d){
-    int i, j;
-    int r = d/2;
-    
-    uint8** intmask = (uint8**)malloc(sizeof(uint8*)*d);
-    for(i=0; i<d; i++){
-        intmask[i] = (uint8*)malloc(sizeof(uint8)*d);
-        for(j=0; j<d; j++){
-            intmask[i][j] = 0;
-        }
-    }
-    
-    //% I=1;I<=DIAMETRO;I++; -> X
-    for(i=0; i<d; i++){
-        //% J=1;J<=DIAMETRO;J++; -> Y
-        for(j=0; j<d; j++){
-            //% (X-RAIO)^2 + (Y-RAIO)^2 < RAIO^2 -> pitagoras
-            if (pow((i-r),2)+pow((j-r),2) < pow(r,2)){
-                intmask[i][j] = 1;
-            }
-        }
-    }
-    
-    return intmask;
-}
-
 
 #endif

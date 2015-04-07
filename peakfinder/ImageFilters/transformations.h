@@ -1,57 +1,53 @@
-#ifndef MAXTRESHLEVEL_H
-#define	MAXTRESHLEVEL_H
+#ifndef TRANSFORMATIONS_H
+#define	TRANSFORMATIONS_H
 
-#include <stdio.h>  //fprintf
-#include <tiff.h>   //uint8
+#include <tiff.h>//uint8
 
-#include "../Auxiliary/auxFunc.h" //isInside
-#include "../TiffImage/tiffFile.h"
-#include "RegionLL.h" //RegionLL
+#include "../TiffImage/tiffFile.h"//TiffImage
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
 /*****************************************************************
 ########################  DATA STRUCTURES #######################
  *****************************************************************/
-
-//Useful definitions
-//QUEUE STATUS
-#define NOTVISITED  0
-#define QUEUED      1
-#define VISITED     2
-
-//COLOR VALUES
-#define WHITE       255
-#define BLACK       0
+    
+#define BLACK 0
+#define WHITE 255
     
 /*****************************************************************
 ######################  END DATA STRUCTURES #####################
  *****************************************************************/
-
+    
 /*****************************************************************
 ########################    PROTOTYPES    #######################
  *****************************************************************/
 /**
- * Go through the image pixels and aggregates them in Regions
+ * Morphologic Operator - Dilatation
  */
-RegionLL findRegions(TiffImage img);
+TiffImage dilation(TiffImage img);
 
 /**
- * Checks if the point (j,i) -> (x,y) is white. If it is add it to the queue.
- * Returns the new stack pointer if there were changes.  is.
+ * Morphologic Operator - Erasion
  */
-int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, int j);
+TiffImage erosion(TiffImage img);
+
+/**
+ * Morphologic Operator - Opening
+ */
+TiffImage opening(TiffImage img);
+
+/**
+ * Morphologic Operator - Closing
+ */
+TiffImage closing(TiffImage img);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
  *****************************************************************/
-
-
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* MAXTRESHLEVEL_H */
+#endif	/* TRANSFORMATIONS_H */
 
