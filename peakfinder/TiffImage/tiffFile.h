@@ -35,7 +35,7 @@ typedef struct sTiffImage{
   // Useful Statistics
   uint8   maximum;            //Maximum intensity in image
   uint8   minimum;            //Minimum intensity in image
-  int*    instensityCounter;  //Counter of pixels with index intensity
+  int*    histogram        ;  //Counter of pixels with index intensity
   uint8   median;             //Median of intensity
   uint8   average;            //Average intensity
   //Regions
@@ -68,7 +68,7 @@ TiffImage cloneTiffImage(TiffImage obj);
 /**
  * Get the maximum, minimum and update intensity counter array.
  */
-void createStatistics(uint8* row, uint32 width, uint8* max, uint8* min, int* intensity);
+void createStatistics(uint8* row, uint32 width, uint8* max, uint8* min, int* histogram);
 
 /**
  * From an array with levels length and Size pixels get the median value.

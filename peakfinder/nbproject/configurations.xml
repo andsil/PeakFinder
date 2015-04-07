@@ -9,10 +9,12 @@
         <itemPath>Auxiliary/complex.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="ImageFilters" projectFiles="true">
-        <itemPath>ImageFilters/binary.h</itemPath>
+        <itemPath>ImageFilters/clahe.h</itemPath>
         <itemPath>ImageFilters/contrast.h</itemPath>
+        <itemPath>ImageFilters/filters.h</itemPath>
         <itemPath>ImageFilters/fourier.h</itemPath>
         <itemPath>ImageFilters/mask.h</itemPath>
+        <itemPath>ImageFilters/transformations.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="ImageProcessing" projectFiles="true">
         <itemPath>ImageProcessing/PointLL.h</itemPath>
@@ -56,10 +58,12 @@
         <itemPath>Auxiliary/complex.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="ImageFilters" projectFiles="true">
-        <itemPath>ImageFilters/binary.c</itemPath>
+        <itemPath>ImageFilters/clahe.c</itemPath>
         <itemPath>ImageFilters/contrast.c</itemPath>
+        <itemPath>ImageFilters/filters.c</itemPath>
         <itemPath>ImageFilters/fourier.c</itemPath>
         <itemPath>ImageFilters/mask.c</itemPath>
+        <itemPath>ImageFilters/transformations.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="ImageProcessing" projectFiles="true">
         <itemPath>ImageProcessing/PointLL.c</itemPath>
@@ -121,13 +125,17 @@
       </item>
       <item path="Auxiliary/complex.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="ImageFilters/binary.c" ex="false" tool="0" flavor2="0">
+      <item path="ImageFilters/clahe.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="ImageFilters/binary.h" ex="false" tool="3" flavor2="0">
+      <item path="ImageFilters/clahe.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ImageFilters/contrast.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ImageFilters/contrast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/filters.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/filters.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ImageFilters/fourier.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -136,6 +144,10 @@
       <item path="ImageFilters/mask.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ImageFilters/mask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/transformations.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/transformations.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ImageProcessing/PointLL.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -216,13 +228,17 @@
       </item>
       <item path="Auxiliary/complex.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="ImageFilters/binary.c" ex="false" tool="0" flavor2="0">
+      <item path="ImageFilters/clahe.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="ImageFilters/binary.h" ex="false" tool="3" flavor2="0">
+      <item path="ImageFilters/clahe.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ImageFilters/contrast.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ImageFilters/contrast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/filters.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/filters.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ImageFilters/fourier.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -231,6 +247,10 @@
       <item path="ImageFilters/mask.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ImageFilters/mask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ImageFilters/transformations.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ImageFilters/transformations.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ImageProcessing/PointLL.c" ex="false" tool="0" flavor2="0">
       </item>

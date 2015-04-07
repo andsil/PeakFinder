@@ -21,7 +21,7 @@ TiffImage initTiffImage(){
     res->yRes               = 0;
     res->maximum            = 0;
     res->minimum            = 255;
-    res->instensityCounter  = NULL;
+    res->histogram  = NULL;
     res->median             = 0;
     res->average            = 0;
     res->listRegions        = NULL;
@@ -45,8 +45,8 @@ void* destroyTiffImage(TiffImage obj){
                     free(obj->image[i]);
             free(obj->image);
         }
-        if(obj->instensityCounter){
-            free(obj->instensityCounter);
+        if(obj->histogram){
+            free(obj->histogram);
         }
         free(obj);
     }
@@ -104,11 +104,11 @@ TiffImage cloneTiffImage(TiffImage obj){
     }
     
     //validation
-    if(!(res->instensityCounter=(int*)malloc(sizeof(int)*levels))){
+    if(!(res->histogram=(int*)malloc(sizeof(int)*levels))){
         goto error;
     }
     for(i=0; i<levels; i++){
-        res->instensityCounter[i] = obj->instensityCounter[i];
+        res->histogram[i] = obj->histogram[i];
     }
     
     return res;
@@ -120,7 +120,7 @@ error:
     return NULL;
 }
 
-void createStatistics(uint8* row, uint32 width, uint8* max, uint8* min, int* intensity){
+void createStatistics(uint8* row, uint32 width, uint8* max, uint8* min, int* histogram){
     uint8 max_aux = 0, min_aux = 255, value;
     int i;
     for(i=0; i<width; i++){
@@ -135,7 +135,7 @@ void createStatistics(uint8* row, uint32 width, uint8* max, uint8* min, int* int
             min_aux = value;
         }
         //increments counter with that value
-        intensity[value]++;
+        histogram[value]++;
     }
     if(*max<max_aux) *max=max_aux;
     if(*min>min_aux) *min=min_aux;

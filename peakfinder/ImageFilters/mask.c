@@ -11,7 +11,7 @@ TiffImage aplyMask(TiffImage img, int r){
     
     int** intmask = (int**)malloc(sizeof(int*)*(2*r+1));
     for(i=0; i<(2*r+1); i++){
-        intmask[i] = (int*)calloc(sizeof(int)*(2*r+1), sizeof(int));
+        intmask[i] = (int*)calloc((2*r+1), sizeof(int));
     }
     
     //% I=1;I<=DIAMETRO;I++; -> X
@@ -28,8 +28,17 @@ TiffImage aplyMask(TiffImage img, int r){
     int startCoordX, startCoordY;
     RegionLL auxRLL = img->listRegions;
     int intensity, intensitySum;//int ii=1;
-    FILE* results = fopen("results.txt","w");
-    fprintf(results, "Ponto (X,Y) Intensidade\n");
+    
+    /* FILENAME */
+    char centroidExt[] = "_results.csv";
+    char* aux_FileName = remove_ext(img->fileName, '.', '/');
+    img->fileName = (char*)realloc(img->fileName, strlen(aux_FileName)+strlen(centroidExt)+1);
+    img->fileName = concat(2, aux_FileName, centroidExt);
+    free(aux_FileName);
+    /* END FILENAME */
+    
+    FILE* results = fopen(img->fileName,"w");
+    fprintf(results, "Point;CoordX;CoordY;Intensity;\n");
     while(auxRLL){
         startCoordX = (int)round(auxRLL->region->centroid.x) - r;
         startCoordY = (int)round(auxRLL->region->centroid.y) - r;
@@ -40,8 +49,8 @@ TiffImage aplyMask(TiffImage img, int r){
         
             for(i=0; i<2*r; i++){
                 for(j=0;j<2*r; j++){
-                    intensity = img->image[startCoordX+i][startCoordY+j] * intmask[i][j];
-                    res->image[startCoordX+i][startCoordY+j] = intensity;
+                    intensity = img->image[startCoordY+i][startCoordX+j] * intmask[i][j];
+                    res->image[startCoordY+i][startCoordX+j] = intensity;
                     intensitySum += intensity;
                 }
             }
@@ -49,7 +58,7 @@ TiffImage aplyMask(TiffImage img, int r){
             fprintf(stderr, "Warning!!! outside matrix bounds-> point %d skipped!\n", auxRLL->id);
         }
         regionIntensity[auxRLL->id] = intensitySum;
-        fprintf(results, "%d (%.3f, %.3f) %d\n", auxRLL->id, auxRLL->region->centroid.x, auxRLL->region->centroid.y, regionIntensity[auxRLL->id]);
+        fprintf(results, "%d;%.3f;%.3f;%d;\n", auxRLL->id, auxRLL->region->centroid.x, auxRLL->region->centroid.y, regionIntensity[auxRLL->id]);
         auxRLL = auxRLL->nextRegion;
     }
     fflush(results);

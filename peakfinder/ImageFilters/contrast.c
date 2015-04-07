@@ -32,7 +32,7 @@ TiffImage histogramEqualization(TiffImage img){
         goto error;
     }
     
-    char append[] = "_cont.tiff";
+    char append[] = "_cont.tif";
     char* aux_fileName = remove_ext(res->fileName, '.', '/');
     if(!(res->fileName = (char*)realloc(res->fileName, strlen(aux_fileName)+strlen(append)+1))){
         goto error;
@@ -42,7 +42,7 @@ TiffImage histogramEqualization(TiffImage img){
     
     {//work-around for the goto scope error
         
-        int* histogram = res->instensityCounter;        
+        int* histogram = res->histogram;        
         // Calculate the size of image
         int levels = exp2(res->depth);
         int size = res->height * res->width;//check res!=0
@@ -75,7 +75,7 @@ TiffImage histogramEqualization(TiffImage img){
         }
         //equalized histogram
         for(i = 0; i < levels; i++){
-            res->instensityCounter[i] = (int)round(PsSk[i]*(levels-1));
+            res->histogram[i] = (int)round(PsSk[i]*(levels-1));
         }
         
         // Generate the equalized image
@@ -87,15 +87,15 @@ TiffImage histogramEqualization(TiffImage img){
         
         //initialize statistics
         for(i=0; i<levels; i++){
-            res->instensityCounter[i] = 0;
+            res->histogram[i] = 0;
         }
         res->minimum=255; res->maximum=0;
         //update statistics
         for(i=0; i<res->height; i++){
-            createStatistics(res->image[i], res->width, &res->maximum, &res->minimum, res->instensityCounter);
+            createStatistics(res->image[i], res->width, &res->maximum, &res->minimum, res->histogram);
         }
-        res->median  = getMedian(res->instensityCounter, levels, res->height*res->width);
-        res->average = getAverage(res->instensityCounter, levels, res->height*res->width);
+        res->median  = getMedian(res->histogram, levels, res->height*res->width);
+        res->average = getAverage(res->histogram, levels, res->height*res->width);
         
         return res;
     }
@@ -103,5 +103,107 @@ TiffImage histogramEqualization(TiffImage img){
 error:
     fprintf(stderr, "[CONTRAST]An error occurred\n");
     if(res) destroyTiffImage(res);
+    return NULL;
+}
+
+/* REF: https://github.com/MPS-UPB/10Team/blob/3846a66e28a956c9bb8f784a6851b3fb400d4627/BAM1/binarization.cpp
+ * calculate a global threshold for the image using Otsu algorithm
+ * params
+ * @histData: histogram of the image
+ * @y0, y1: Oy coordinates of the image
+ * @x0, x1: Ox coordinates of the image
+ * @return: global threshold for the image
+*/
+int getOtsuThreshold(int *histData, int y0, int y1, int x0, int x1) {
+    int height = y1 - y0;
+    int width  = x1 - x0;
+
+    // Total number of pixels
+    int total = height * width;
+
+    float sum = 0;
+    int t;
+    for (t = 0; t < 256 ; t++) 
+        sum += t * histData[t];
+
+    float sumB = 0;
+    int wB = 0;
+    int wF = 0;
+
+    float varMax = 0;
+    int threshold = 0;
+
+    for (t = 0 ; t < 256 ; t++) {
+        wB += histData[t];              // Weight Background
+        if (wB == 0) continue;
+
+        wF = total - wB;                 // Weight Foreground
+        if (wF == 0) break;
+
+        sumB += (float) (t * histData[t]);
+
+        float mB = sumB / wB;            // Mean Background
+        float mF = (sum - sumB) / wF;    // Mean Foreground
+
+        // Calculate Between Class Variance
+        float varBetween = (float)wB * (float)wF * (mB - mF) * (mB - mF);
+
+        // Check if new maximum found
+        if (varBetween > varMax) {
+            varMax = varBetween;
+            threshold = t;
+        }
+    }
+
+    return threshold;
+}
+
+TiffImage binImage8bit(TiffImage img, uint8 threshold) {
+    //variables
+    int i, j;
+    uint8** res = NULL;
+
+    //validation
+    if (!img) {
+        goto error;
+    }
+
+    //allocate memory for bin image
+    if (!(res = (uint8**) malloc(sizeof (uint8*) * img->height))) {
+        goto error;
+    }
+    for (i = 0; i < img->height; i++) {
+        //put the value to 0
+        if (!(res[i] = (uint8*) calloc(img->width, sizeof(uint8)))) {
+            goto error;
+        }
+    }
+
+    //construct bin image
+    for (i = 0; i < img->height; i++) {
+        for (j = 0; j < img->width; j++) {
+            if (img->image[i][j] > threshold)
+                res[i][j] = WHITE;
+        }
+        //free line to be replaced
+        free(img->image[i]);
+    }
+
+    //free array of pointers
+    free(img->image);
+
+    //register image pointer to binary matrix created
+    img->image = res;
+
+    return img;
+
+error:
+    fprintf(stderr, "[BINIMG]An error occurred\n");
+    if (res) {
+        for (i = 0; i < img->height; i++) {
+            if (res[i]) free(res[i]);
+        }
+        free(res);
+    }
     return NULL;
 }

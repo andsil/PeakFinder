@@ -121,8 +121,8 @@ int main_DEACTIVATED(int argc, char* argv[]) {
     
     fprintf(stdout, "wdim:%d\n",wdim);
     
-    res = writeTiffImage("OutputImages/BinarizedWithCentroid.tiff", aux);
-    res = writeTiffImage("OutputImages/Masked.tiff", masked);
+    res = writeTiffImage("OutputImages/BinarizedWithCentroid.tif", aux);
+    res = writeTiffImage("OutputImages/Masked.tif", masked);
     
     free(aux);
     free(masked);

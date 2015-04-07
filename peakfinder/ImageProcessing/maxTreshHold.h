@@ -7,7 +7,6 @@
 #include "../Auxiliary/auxFunc.h" //isInside
 #include "../TiffImage/tiffFile.h"
 #include "RegionLL.h" //RegionLL
-#include "../ImageFilters/binary.h" //binImage8bitStatic
 
 #ifdef	__cplusplus
 extern "C" {
@@ -44,12 +43,6 @@ RegionLL findRegions(TiffImage img);
  * Returns the new stack pointer if there were changes.  is.
  */
 int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, int j);
-
-/**
- * VERY VERY Heavy calculations!!! Should be avoided!
- * Lower start ThreshHold lower performance -> higher calculation times
- */
-TiffImage imageBinarization(TiffImage img, float startThreshHold, int maxIt);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
