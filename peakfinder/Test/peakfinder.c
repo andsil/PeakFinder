@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     
     if(argc<2){//iterative
         //printf("Put the path to File:");
-        inputFileName = "InputImages/a0.tif";//readline(stdout);
+        inputFileName = /*"InputImages/a0.tif";*/readline(stdin);
     } else {//automatic
         inputFileName = argv[1];
     }
@@ -105,26 +105,9 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Writing contrasted Image\n");fflush(stdout);
     res = writeTiffImage(contrasted->fileName, contrasted);*/
     //int res = writeTiffImage("clahe.tif", contrasted);
+    
 /* END HISTOGRAM EQUILIZER CONTRAST */
     TiffImage aux;
-
-//->BEGIN TEST!!!
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/1.mediana.tiff", binImage8bitAutoMedian(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/2.media.tiff", binImage8bitAutoAverage(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/3.estatico127.tiff", binImage8bitStaticHalf(aux));free(aux);
-    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/mean.tif", image=binary_meanFilter(aux));//free(aux);
-    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/gaussian.tif", image=binary_gaussianFilter(aux));//free(aux);
-    //contrasted = histogramEqualization(image);
-    //aux = cloneTiffImage(image);res = writeTiffImage("OutputImages/median.tif", aux=binary_medianFilter(aux));free(aux);
-    
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Opening.tif", binary_opening(binImage8bitStatic(aux, 0.7)));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico70Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.7)));free(aux);
-    /*aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Opening.tif", binary_opening(binImage8bitStatic(aux, 0.8)));free(aux);
-    aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/4.estatico80Cloasing.tif", binary_closing(binImage8bitStatic(aux, 0.8)));free(aux);
-    */
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/5.dinamicoMetade.tiff", binImage8bitDynamicHalf(aux));free(aux);
-    //aux = cloneTiffImage(contrasted);res = writeTiffImage("OutputImages/6.dinamico70.tiff", binImage8bitDynamic(aux, 0.7));free(aux);
-//->END TEST!!!
     
 /* BEGIN FOURIER */
     fprintf(stdout, "Fourier...\n");fflush(stdout);
@@ -152,13 +135,21 @@ int main(int argc, char* argv[]) {
     //Transform image into frequency domain
     fourier(outComp, aux->image, aux->height);
     
+    //write image spectrum
+    fourierSpectrumImage(aux->image, outComp, aux->height);
+    
+    //Output spectrum
+    res = writeTiffImage(aux->fileName,aux);
+        
 /* BEGIN TEST FOURIER FILTERING */
     
     fprintf(stdout, "apply filter...\n");fflush(stdout);
     
+    int width = aux->width; int height = aux->height; int D;
+    
     //REF: https://github.com/ajatix/iplab/blob/3de740d83e05a449acfa37b9c1f506893176ac49/Expt6/FFTAnalysis.cpp
     //Butterworth_HPF 
-    int width = aux->width; int height = aux->height; int D = 1024;//-> size of mask
+    D = 1024;//-> size of mask
     /*for(i=0;i<height;i++) {
         for(j=0;j<width;j++) {
             outComp[i][j].Re = outComp[i][j].Re*(1/(1+pow((float)D/sqrt((float)(i-height/2)*(float)(i-height/2)+(float)(j-width/2)*(float)(j-width/2)),2)));
@@ -187,32 +178,43 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    /**/
     //HPF
     D = sqrt(pow(width,2)+pow(height,2));//pitagoras
-    D = (int)D*0.5; //95% -> deletes center
+    D = (int)D*0.5;
     for(i=0;i<height;i++) {
         for(j=0;j<width;j++) {
+            //removes every point with less than 250 pixel intensity
+            if(((log10(compAbs(outComp[i][j])) * 100.0) + 255) <= 250){
+                outComp[i][j].Re = 0;
+                outComp[i][j].Im = 0;
+            }
+            /*
+            //Removes high frequencies
             if ((i<(height/2+D/2)) && (i>(height/2-D/2)) && (j<(width/2+D/2)) && (j>(width/2-D/2))) {
             //if(((i-height/2)*(i-height/2)+(j-width/2)*(j-width/2))>(D/2*D/2)) {
                 outComp[i][j].Re = 0;
                 outComp[i][j].Im = 0;
-            }
-            else {
-                outComp[i][j].Re = outComp[i][j].Re;
-                outComp[i][j].Im = outComp[i][j].Im;
-            }
+            }*/
         }
     }
-    /**/
     
     fprintf(stdout, "inverseFourier...\n");fflush(stdout);
     //return to space domain
     inverseFourier(aux->image, outComp, aux->height);
     
+    /* FILENAME */
+    char filteredExt[] = "_filtered.tif";
+    aux_FileName = remove_ext(aux->fileName, '.', '/');
+    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(filteredExt)+1))){
+        goto error;
+    }
+    aux->fileName = concat(2, aux_FileName, filteredExt);
+    free(aux_FileName);
+    /* END FILENAME */
+    
     fprintf(stdout, "print result...\n");fflush(stdout);
     //print result
-    res = writeTiffImage("OutputImages/FilteredByFourier.tif",aux);
+    res = writeTiffImage(aux->fileName,aux);
     
 /* END TEST FOURIER FILTERING */
     
@@ -274,12 +276,12 @@ int main(int argc, char* argv[]) {
     /* BEGIN CLOSING*/
     
     /* FILENAME */
-    char binarizedClosedExt[] = "_binarizedClosed.tif";
+    char closedExt[] = "_closed.tif";
     aux_FileName = remove_ext(aux->fileName, '.', '/');
-    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(binarizedClosedExt)+1))){
+    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(closedExt)+1))){
         goto error;
     }
-    aux->fileName = concat(2, aux_FileName, binarizedClosedExt);
+    aux->fileName = concat(2, aux_FileName, closedExt);
     free(aux_FileName);
     /* END FILENAME */
     
@@ -292,7 +294,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Done\n");fflush(stdout);
     
 /* END BINARIZING */
-    return 0;
+    
 /* BEGIN REGION DETECTION*/
     fprintf(stdout, "Detecting regions...\n");fflush(stdout);
     
@@ -302,8 +304,8 @@ int main(int argc, char* argv[]) {
     }
     
     //Find regions and count them
-    RegionLL regionList = findRegions(aux);
-    if(image->listRegions == NULL){
+    RegionLL regionList = aux->listRegions = findRegions(aux);
+    if(aux->listRegions == NULL){
         fprintf(stdout, "Something went wrong (finding regions)\n");fflush(stdout);
         goto error;
     }
@@ -337,7 +339,18 @@ int main(int argc, char* argv[]) {
         
         //show centroid for each region in the result image
         showCentroid(aux, regionList);
-        res = writeTiffImage("OutputImages/static70WithCentroid.tif", aux);
+        
+        /* FILENAME */
+        char centroidExt[] = "_centroid.tif";
+        aux_FileName = remove_ext(aux->fileName, '.', '/');
+        if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(centroidExt)+1))){
+            goto error;
+        }
+        aux->fileName = concat(2, aux_FileName, centroidExt);
+        free(aux_FileName);
+        /* END FILENAME */
+        
+        res = writeTiffImage(aux->fileName, aux);
         
     } else {
         fprintf(stderr, "No list to present!\n");fflush(stdout);
@@ -358,7 +371,16 @@ int main(int argc, char* argv[]) {
     
     //getWDim(aux);//->Does not work (something wrong)
     
-    res = writeTiffImage("OutputImages/Masked.tiff", masked);
+    /* FILENAME */
+    char maskedExt[] = "_masked.tif";
+    aux_FileName = remove_ext(aux->fileName, '.', '/');
+    if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(maskedExt)+1))){
+        goto error;
+    }
+    aux->fileName = concat(2, aux_FileName, maskedExt);
+    free(aux_FileName);
+    /* END FILENAME */
+    res = writeTiffImage(aux->fileName, masked);
     
     fprintf(stdout, "Done wdim:%d\n",wdim);
     

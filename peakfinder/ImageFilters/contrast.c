@@ -32,7 +32,7 @@ TiffImage histogramEqualization(TiffImage img){
         goto error;
     }
     
-    char append[] = "_cont.tiff";
+    char append[] = "_cont.tif";
     char* aux_fileName = remove_ext(res->fileName, '.', '/');
     if(!(res->fileName = (char*)realloc(res->fileName, strlen(aux_fileName)+strlen(append)+1))){
         goto error;

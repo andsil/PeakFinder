@@ -7,12 +7,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/transformations.h</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/Auxiliary/auxFunc.c</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/Test/peakfinder.c</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/contrast.h</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/contrast.c</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/TiffImage/tiffFile.c</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/Main/main.c</file>
         </group>
     </open-files>
 </project-private>

@@ -2,6 +2,7 @@
 #define	MASK_H
 
 #include "../TiffImage/tiffFile.h"
+#include "../Auxiliary/auxFunc.h"//remove_ext
 
 #ifdef	__cplusplus
 extern "C" {
