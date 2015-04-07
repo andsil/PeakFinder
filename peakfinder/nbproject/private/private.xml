@@ -12,6 +12,7 @@
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/Test/peakfinder.c</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/contrast.h</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/contrast.c</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/mask.c</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/TiffImage/tiffFile.c</file>
         </group>
     </open-files>
