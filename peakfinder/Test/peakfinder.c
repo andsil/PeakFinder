@@ -56,7 +56,8 @@ int main(int argc, char* argv[]) {
     }
     
     if(!inputFileName){
-        goto error;
+        //goto error;
+        return -1;
     }
     
     //Disable libtiff warnings
@@ -67,7 +68,8 @@ int main(int argc, char* argv[]) {
     
     //validation
     if(!image){
-        goto error;
+        //goto error;
+        return -2;
     }
     
     //test detail data
@@ -118,7 +120,8 @@ int main(int argc, char* argv[]) {
     char fourierExt[] = "_fourier.tif";
     aux_FileName = remove_ext(aux->fileName, '.', '/');
     if(!(aux->fileName = (char*)realloc(aux->fileName, strlen(aux_FileName)+strlen(fourierExt)+1))){
-        goto error;
+        //goto error;
+        return -3;
     }
     aux->fileName = concat(2, aux_FileName, fourierExt);
     free(aux_FileName);
@@ -165,7 +168,7 @@ int main(int argc, char* argv[]) {
             outComp[i][j].Im = outComp[i][j].Im*(1/(1+pow(sqrt((float)(i-height/2)*(float)(i-height/2)+(float)(j-width/2)*(float)(j-width/2))/(float)D,2)));
         }
     }*/
-    
+    /*
     //LPF
     D = sqrt(pow(width,2)+pow(height,2));//pitagoras
     D = (int)D*0.99; //99% -> deletes center
@@ -177,7 +180,114 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+    */
+    double distance, rest;
+    double module1, module2;
     
+    int width_half = width/2;
+    int height_half = height/2;
+    
+    int maxDis = sqrt(pow(height_half,2) + pow(width_half,2));
+    double histogram[maxDis];
+    int histogramPoints[maxDis];
+    
+    int coordX, coordY;
+
+    for(i=0; i<maxDis; i++){
+        histogram[i] = 0;
+        histogramPoints[i] = 0;
+    }
+    
+    fprintf(stdout, "(512,512)i:%f\n", (log10(compAbs(outComp[512][512])) * 100.0) + 255);
+    
+    for(i=0; i<height; i++){
+      for(j=0; j<width; j++){
+        coordY = height_half - i;
+        coordX = width_half - j;
+        distance = sqrt(pow(coordX,2) + pow(coordY,2));
+        rest = ((distance/1.0)==distance)?0:distance - ((int)distance);
+        module1 = (log10(compAbs(outComp[i][j])) * 100.0) + 255;
+        if(module1<0){
+            module1 = 0;
+        } else if(module1>255){
+            module1 = 255;
+        }
+        if(rest!=0){
+            if(coordY>0 && coordX>0){//(+,+) -> 2nd quadrant
+                module2 = (log10(compAbs(outComp[i+1][j-1])) * 100.0) + 255;
+            } else if(coordY<0 && coordX >0){//(-,+) -> 3rd quadrant
+                module2 = (log10(compAbs(outComp[i-1][j-1])) * 100.0) + 255;
+            } else if(coordY<0 && coordX <0){//(-,-) -> 4th quadrant
+                module2 = (log10(compAbs(outComp[i-1][j+1])) * 100.0) + 255;
+            } else { //(+,-) -> 1st quadrant
+                module2 = (log10(compAbs(outComp[i+1][j+1])) * 100.0) + 255;
+            }
+            if(module2<0){
+                module2 = 0;
+            } else if(module2>255){
+                module2 = 255;
+            }
+            histogram[(int)(distance/1)+1] += module1*rest + module2*(1-rest);
+            histogramPoints[(int)(distance/1)+1]++;
+        } else {
+            histogram[(int)distance] += module1;
+            histogramPoints[(int)distance]++;
+        }
+      }
+    }
+    
+    FILE* radialHisto = fopen("radialHisto.csv","w");
+    fprintf(radialHisto, "Distance;points;avg intensity;\n");
+    double local_max[3], local_min[2]; int local_max_dist[3], local_min_dist[2];
+    int maxPoints=0, minPoints=0;
+    double actual_avgInt, prev_avgInt;int inc=0; int infMax=0; int infMin=0;
+    for(i=0; i<3; i++){
+        local_max[i]=0;
+    }
+    for(i=0; i<maxDis; i++){
+        actual_avgInt = histogram[i]/histogramPoints[i];
+        if((maxPoints<3 || minPoints<2)&& i>0){
+            if(actual_avgInt<prev_avgInt && inc==1){//if starts to decrement and previous iteration was incrementing
+                infMax = 1;//declare point of inflection
+            } else {
+                infMax = 0;
+            }
+            if(actual_avgInt>prev_avgInt && inc==0){//if starts to increment and previous iteration was decrementing
+                infMin = 1;//declare point of inflection
+            } else {
+                infMin = 0;
+            }
+            inc = (actual_avgInt>prev_avgInt)?1:0;//is it incrementing?1-Yes 0-No
+            if(infMax==1){
+                local_max[maxPoints] = prev_avgInt;
+                local_max_dist[maxPoints] = i-1;
+                maxPoints++;
+            }
+            if(infMin==1){
+                if(maxPoints==0){
+                    local_min[minPoints]=prev_avgInt;
+                    local_min_dist[minPoints] = i-1;
+                    minPoints++;
+                }
+                if(maxPoints==3){
+                    local_min[minPoints]=prev_avgInt;
+                    local_min_dist[minPoints] = i-1;
+                    minPoints++;
+                }
+            }
+        }
+        fprintf(radialHisto, "%d;%d;%f;\n", i, histogramPoints[i], actual_avgInt);
+        prev_avgInt = actual_avgInt;
+    }
+    fprintf(radialHisto, "Radius local max;Avg Intensity;\n");
+    for(i=0; i<3; i++)
+        fprintf(radialHisto, "%d;%f;\n",local_max_dist[i],local_max[i]);
+    fprintf(radialHisto, "Radius local min;Avg Intensity;\n");
+    for(i=0; i<2; i++)
+        fprintf(radialHisto, "%d;%f;\n",local_min_dist[i],local_min[i]);
+    fclose(radialHisto);
+    
+    /*
     //HPF
     D = sqrt(pow(width,2)+pow(height,2));//pitagoras
     D = (int)D*0.5;
@@ -188,13 +298,28 @@ int main(int argc, char* argv[]) {
                 outComp[i][j].Re = 0;
                 outComp[i][j].Im = 0;
             }
-            /*
+            *//*
             //Removes high frequencies
             if ((i<(height/2+D/2)) && (i>(height/2-D/2)) && (j<(width/2+D/2)) && (j>(width/2-D/2))) {
             //if(((i-height/2)*(i-height/2)+(j-width/2)*(j-width/2))>(D/2*D/2)) {
                 outComp[i][j].Re = 0;
                 outComp[i][j].Im = 0;
-            }*/
+            }*//*
+        }
+    }
+    */
+    
+    for(i=0;i<height;i++) {
+        for(j=0;j<width;j++) {
+            coordY = height_half - i;
+            coordX = width_half - j;
+            distance = sqrt(pow(coordX,2) + pow(coordY,2));
+            if(distance<local_min_dist[0] || distance>local_min_dist[1]){
+                outComp[i][j].Re = 0;
+                outComp[i][j].Im = 0;
+            } else {
+                printf("(%d,%d)nao entrei\n",i,j);
+            }
         }
     }
     
