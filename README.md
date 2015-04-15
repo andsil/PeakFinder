@@ -14,6 +14,10 @@ For Linux OS just do the following command:
 
 `$ sudo apt-get install libtiff4 libtiff4-dev`
 
+Also gnuplot is required for fourier transform histogram visualization.
+
+`$ sudo apt-get install gnuplot`
+
 # Project structure
 
 At this point, the application is being made in Netbeans IDE. So, there are files regarding this IDE included in the repository.
