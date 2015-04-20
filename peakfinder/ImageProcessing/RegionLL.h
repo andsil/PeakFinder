@@ -114,8 +114,9 @@ int regionCount(RegionLL list);
 
 /**
  * Create a new Region from a List of Points
+ * NOTE: Borders regions (within 5 pixels) are deleted!
  */
-Region createNewRegion(PointLL pointList);
+Region createNewRegion(PointLL pointList, uint32 width, uint32 height);
 
 /** REMOVE **/
 

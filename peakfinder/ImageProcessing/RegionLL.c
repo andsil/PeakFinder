@@ -258,7 +258,8 @@ error:
     return NULL;
 }
 
-Region createNewRegion(PointLL pointList){
+//NOTE: Borders regions (within 5 pixels) are deleted!
+Region createNewRegion(PointLL pointList, uint32 width, uint32 height){
     Region res;
     PointCoord* aux;
     
@@ -272,6 +273,12 @@ Region createNewRegion(PointLL pointList){
     getPointLLParameters(pointList, &res->coordXBeg, &res->coordYBeg,
             &res->coordXEnd, &res->coordYEnd, &res->minValue, &res->maxValue,
             &res->pointCount);
+    
+    //Border region -> delete
+    if(res->coordXBeg < 5 || res->coordYBeg < 5 || res->coordXEnd > width-5 || res->coordYEnd > height-5 ){
+        return NULL;
+    }
+    
     aux = compute2DPolygonCentroid(pointList, &res->centroid, res->coordXBeg,
             res->coordYBeg, res->coordXEnd-res->coordXBeg+1,
             res->coordYEnd-res->coordYBeg+1);
