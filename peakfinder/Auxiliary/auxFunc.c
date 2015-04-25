@@ -1,5 +1,34 @@
 #include "auxFunc.h"
 
+/* LOCAL PROTOTYPES */
+int partition_mod( double value[], int position[], int l, int r);
+
+/**
+ * Read line from stdin
+ */
+char* readline(FILE *file){
+    size_t size  = 80;
+    size_t curr  = 0;
+    char *buffer = malloc(size);
+    while(fgets(buffer + curr, size - curr, file)) {
+        if(strchr(buffer + curr, '\n')){
+            return buffer; // success
+        }
+        curr = size - 1;
+        size *= 2;
+        char *tmp = realloc(buffer, size);
+        if(tmp == NULL){//handle error
+            goto error;
+        }
+        buffer = tmp;
+    }
+    return buffer;
+
+error:
+    fprintf(stderr,"[MAIN]No space left to allocate\n");
+    return NULL;
+}
+
 /**
  * remove_ext: removes the "extension" from a file spec.
  * @param mystr is the string to process.
@@ -48,6 +77,15 @@ char *remove_ext (char* mystr, char dot, char sep) {
     // Return the modified string.
 
     return retstr;
+}
+
+int compare( const void* a, const void* b){
+     int double_a = * ( (double*) a );
+     int double_b = * ( (double*) b );
+
+     if ( double_a == double_b ) return 0;
+     else if ( double_a < double_b ) return -1;
+     else return 1;
 }
 
 /**
@@ -121,4 +159,55 @@ void insertionSort(uint8 window[]) {
         }
         window[j+1] = temp;
     }
+}
+
+/**
+ * Adds the extension array to the original filename
+ * @return new pointer or NULL if an error occurred
+ */
+char* addExtension(char* original, char extension[]){
+    char *aux_FileName = remove_ext(original, '.', '/');
+    if(!(original = (char*)realloc(original, strlen(aux_FileName)+strlen(extension)+1))){
+        return NULL;
+    }
+    original = concat(2, aux_FileName, extension);
+    free(aux_FileName);
+    
+    return original;
+}
+
+/**
+ * Quick Sort modified to swap position in two arrays based on the values of the first one
+ * @param value Histogram of values
+ * @param position Histogram of position
+ * @param l start
+ * @param r end
+ */
+void quickSort_mod( double value[], int position[], int l, int r){
+    int j;
+
+    if( l < r ) {
+   	// divide and conquer
+        j = partition_mod( value, position, l, r);
+        quickSort_mod( value, position, l, j-1);
+        quickSort_mod( value, position, j+1, r);
+    }	
+}
+
+int partition_mod( double value[], int position[], int l, int r) {
+   int i, j;
+   double pivot, t_d; int t;
+   pivot = value[l];
+   i = l; j = r+1;
+		
+   while(1){
+   	do ++i; while( value[i] >= pivot && i <= r );
+   	do --j; while( value[j] < pivot );
+   	if( i >= j ) break;
+   	t_d = value[i]; value[i] = value[j]; value[j] = t_d;
+        t = position[i]; position[i] = position[j]; position[j] = t;
+   }
+   t_d = value[l]; value[l] = value[j]; value[j] = t_d;
+   t = position[l]; position[l] = position[j]; position[j] = t;
+   return j;
 }

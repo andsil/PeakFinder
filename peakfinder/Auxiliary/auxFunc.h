@@ -1,6 +1,7 @@
 #ifndef AUXFUNC_H
 #define	AUXFUNC_H
 
+#include <stdio.h>//FILE*
 #include <stdlib.h>//malloc
 #include <stdarg.h>//va_*
 #include <string.h>//strcpy
@@ -26,6 +27,12 @@ extern "C" {
 /*****************************************************************
 ########################    PROTOTYPES    #######################
  *****************************************************************/
+    
+/**
+ * Read line from stdin
+ */
+char* readline(FILE *file);
+    
 /**
  * remove_ext: removes the "extension" from a file spec.
  *    mystr is the string to process.
@@ -38,6 +45,12 @@ extern "C" {
  *   it returns NULL.
  */
 char *remove_ext (char* mystr, char dot, char sep);
+
+/**
+ * Adds the extension array to the original filename
+ * @return new pointer or NULL if an error occurred
+ */
+char* addExtension(char* original, char extension[]);
 
 /**
  * int main(int argc, char* argv[]){
@@ -57,6 +70,12 @@ char *remove_ext (char* mystr, char dot, char sep);
 char* concat(int count, ...);
 
 /**
+ * Compare two doubles (casted as void)
+ * @return 0 if equal, -1 if a<b and 1 if a>b
+ */
+int compare( const void* a, const void* b);
+
+/**
  * Auxiliary functions that returns if the current Point (row, column) is
  * inside the image area or not.
  */
@@ -67,6 +86,15 @@ char isInside(int startY, int startX, int sizeY, int sizeX);
  * insertion sort is best for this sorting
  */
 void insertionSort(uint8 window[]);
+
+/**
+ * Quick Sort modified to swap position in two arrays based on the values of the first one
+ * @param value Histogram of values
+ * @param position Histogram of position
+ * @param l start
+ * @param r end
+ */
+void quickSort_mod( double value[], int position[], int l, int r);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################
