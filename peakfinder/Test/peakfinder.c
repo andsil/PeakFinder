@@ -11,6 +11,7 @@
 //#include <inttypes.h>//PRId32
 //#include <unistd.h>//usleep
 
+#include "../Auxiliary/timer.h" //GET_TIME
 #include "../TiffImage/readTiff.h"//readTiffImage
 #include "../TiffImage/writeTiff.h"//writeTiffImage
 #include "../ImageFilters/contrast.h"//histogramEqualization,binImage8bit
@@ -45,18 +46,25 @@ void gnuplot_histogram_test(char* outputFileName, char dataFileName[]);
 ########################    FUNCTIONS     #######################
 *****************************************************************/
 int main(int argc, char* argv[]) {
+    //Timer
+    double startTime, finishTime;
+    //Start timer
+    GET_TIME(startTime);
     
     //Parse filename to image
     char* inputFileName;
     char* originalFileName = NULL;
+    char verbose = 0;
     int i,j;
-    int res;
     
     if(argc<2){//iterative
-        //printf("Put the path to File:");
+        printf("Put the path to File:");
         inputFileName = /*"InputImages/a0.tif";*/readline(stdin);
     } else {//automatic
         inputFileName = argv[1];
+        if(argc==3 && (strcmp(argv[2], "-v")==0 || strcmp(argv[2], "--verbose")==0)){
+            verbose = 1;
+        }
     }
     
     if(!inputFileName){
@@ -89,19 +97,21 @@ int main(int argc, char* argv[]) {
             
     originalFileName = strdup(image->fileName);
     
-    //filename
-    char* histogramGP = strdup(originalFileName);
-    histogramGP = addExtension(histogramGP, "_originalHisto.png");
-    char* histogramFile = strdup(originalFileName);
-    histogramFile = addExtension(histogramFile, "_originalHisto.csv");
-    FILE* histogramCSV = fopen(histogramFile,"w");
-    fprintf(histogramCSV, "Intensity;Pixels;\n");
-    for(i=0; i<255; i++){
-        fprintf(histogramCSV, "%d;%d;\n", i, image->histogram[i]);
-    }
-    fclose(histogramCSV);
+    if(verbose){
+        //filename
+        char* histogramGP = strdup(originalFileName);
+        histogramGP = addExtension(histogramGP, "_originalHisto.png");
+        char* histogramFile = strdup(originalFileName);
+        histogramFile = addExtension(histogramFile, "_originalHisto.csv");
+        FILE* histogramCSV = fopen(histogramFile,"w");
+        fprintf(histogramCSV, "Intensity;Pixels;\n");
+        for(i=0; i<255; i++){
+            fprintf(histogramCSV, "%d;%d;\n", i, image->histogram[i]);
+        }
+        fclose(histogramCSV);
     
-    gnuplot_histogram(histogramGP, histogramFile);
+        gnuplot_histogram(histogramGP, histogramFile);
+    }
     
 /* BEGIN HISTOGRAM EQUILIZER CONTRAST */
     /*TiffImage contrasted;
@@ -124,7 +134,7 @@ int main(int argc, char* argv[]) {
     
     //Write Image
     fprintf(stdout, "Writing contrasted Image\n");fflush(stdout);
-    res = writeTiffImage(contrasted->fileName, contrasted);
+    writeTiffImage(contrasted->fileName, contrasted);
     
     //filename
     char* histogramCountGP = strdup(originalFileName);
@@ -164,10 +174,12 @@ int main(int argc, char* argv[]) {
     fourier(outComp, aux->image, aux->height);
     
     //write image spectrum
-    fourierSpectrumImage(aux->image, outComp, aux->height);
+    if(verbose){
+        fourierSpectrumImage(aux->image, outComp, aux->height);
     
-    //Output spectrum
-    res = writeTiffImage(aux->fileName,aux);
+        //Output spectrum
+        writeTiffImage(aux->fileName,aux);
+    }
         
 /* BEGIN TEST FOURIER FILTERING */
     
@@ -324,7 +336,7 @@ int main(int argc, char* argv[]) {
             }
             
             //update intensity sum and increment the number of pixels at distance
-            if(module1_log > 250 || module2_log > 250){
+            if((module1_log > 250 || module2_log > 250) && (coordX * coordY)!=0){//horizontal and vertical ignored
                 peaks[(int)(distance/1)+1] += module1_log*(1-rest)+module2_log*rest;
                 peaksPoints[(int)(distance/1)+1]++;
             }
@@ -351,7 +363,7 @@ int main(int argc, char* argv[]) {
             }
             
             //update intensity sum and increment the number of pixels at distance
-            if(module1_log > 250){
+            if(module1_log > 250 && (coordX * coordY)!=0){//horizontal and vertical ignored
                 peaks[(int)distance] += module1_log;
                 peaksPoints[(int)distance]++;
             }
@@ -370,26 +382,31 @@ int main(int argc, char* argv[]) {
     
     //END RADIAL HISTOGRAM
     
-    // Filename
-    //Intensities
-    char* int_rad = strdup(originalFileName);
-    int_rad = addExtension(int_rad, "_radialIntHisto.csv");
-    //Variations
-    char* var_rad = strdup(originalFileName);
-    var_rad = addExtension(var_rad, "_radialVarHisto.csv");
-    
-    //Intensities
-    char* int_log_rad = strdup(originalFileName);
-    int_log_rad = addExtension(int_log_rad, "_radialLogIntHisto.csv");
-    //Variations
-    char* var_log_rad = strdup(originalFileName);
-    var_log_rad = addExtension(var_log_rad, "_radialLogVarHisto.csv");
-    
-    //CSV open
-    FILE* radialHisto = fopen(int_rad,"w");
-    FILE* radialVarHisto = fopen(var_rad,"w");
-    FILE* radialPeaks = fopen(int_log_rad,"w");//TEST
-    FILE* radialVarPeaks = fopen(var_log_rad,"w");//TEST
+    FILE *radialHisto, *radialVarHisto;
+    FILE *radialPeaks, *radialVarPeaks;
+    char *int_rad, *var_rad, *int_log_rad, *var_log_rad;
+    if(verbose){
+        // Filename
+        //Intensities
+        int_rad = strdup(originalFileName);
+        int_rad = addExtension(int_rad, "_radialIntHisto.csv");
+        //Variations
+        var_rad = strdup(originalFileName);
+        var_rad = addExtension(var_rad, "_radialVarHisto.csv");
+
+        //Intensities
+        int_log_rad = strdup(originalFileName);
+        int_log_rad = addExtension(int_log_rad, "_radialLogIntHisto.csv");
+        //Variations
+        var_log_rad = strdup(originalFileName);
+        var_log_rad = addExtension(var_log_rad, "_radialLogVarHisto.csv");
+
+        //CSV open
+        radialHisto = fopen(int_rad,"w");
+        radialVarHisto = fopen(var_rad,"w");
+        radialPeaks = fopen(int_log_rad,"w");//TEST
+        radialVarPeaks = fopen(var_log_rad,"w");//TEST
+    }
     
     // Maximums and Minimums arrays
     int half_dis = maxDis/2;//worst case is max-min-max-min...
@@ -402,44 +419,48 @@ int main(int argc, char* argv[]) {
     local_max_min(histogram, histogramPoints, maxDis, local_max, local_min, local_max_dist, local_min_dist, &maxPoints, &minPoints);
     
     //Print histograms
-    fprintf(radialHisto, "Distance;Points;Avg.Intensity;\n");
-    fprintf(radialVarHisto, "Distance;Points;MinVar;MaxVar;Diff;\n");
-    fprintf(radialPeaks, "Distance;Points;Avg.Intensity;\n");//TEST
-    fprintf(radialVarPeaks, "Distance;Points;MinVar;MaxVar;Diff;\n");//TEST
-    for(i=0; i<maxDis; i++){
-        fprintf(radialHisto, "%d;%d;%f;\n", i, histogramPoints[i], histogram[i]/histogramPoints[i]);
-        fprintf(radialVarHisto, "%d;%d;%f;%f;%f;\n", i, histogramPoints[i], histogramMinVar[i], histogramMaxVar[i], histogramMaxVar[i]-histogramMinVar[i]);
-        fprintf(radialPeaks, "%d;%d;%f;\n", i, peaksPoints[i], peaks[i]/peaksPoints[i]);//TEST
-        if(peaks[i]>0)  mul = 1.0;
-        else            mul = 0.0;
-        fprintf(radialVarPeaks, "%d;%d;%f;%f;%f;\n", i, peaksPoints[i], peaksMinVar[i], peaksMaxVar[i], (peaksMaxVar[i]-peaksMinVar[i])*mul);//TEST
+    if(verbose){
+        fprintf(radialHisto, "Distance;Points;Avg.Intensity;\n");
+        fprintf(radialVarHisto, "Distance;Points;MinVar;MaxVar;Diff;\n");
+        fprintf(radialPeaks, "Distance;Points;Avg.Intensity;\n");//TEST
+        fprintf(radialVarPeaks, "Distance;Points;MinVar;MaxVar;Diff;\n");//TEST
+        for(i=0; i<maxDis; i++){
+            fprintf(radialHisto, "%d;%d;%f;\n", i, histogramPoints[i], histogram[i]/histogramPoints[i]);
+            fprintf(radialVarHisto, "%d;%d;%f;%f;%f;\n", i, histogramPoints[i], histogramMinVar[i], histogramMaxVar[i], histogramMaxVar[i]-histogramMinVar[i]);
+            fprintf(radialPeaks, "%d;%d;%f;\n", i, peaksPoints[i], peaks[i]/peaksPoints[i]);//TEST
+            if(peaks[i]>0)  mul = 1.0;
+            else            mul = 0.0;
+            fprintf(radialVarPeaks, "%d;%d;%f;%f;%f;\n", i, peaksPoints[i], peaksMinVar[i], peaksMaxVar[i], (peaksMaxVar[i]-peaksMinVar[i])*mul);//TEST
+        }
     }
     
     // Sorting maximums by intensity registered
     quickSort_mod(local_max, local_max_dist, 0, maxPoints-1);
     
-    fprintf(radialHisto, "Radius local max;Avg.Intensity;\n");
-    for(i=0; i<maxPoints; i++)
-        fprintf(radialHisto, "%d;%f;\n",local_max_dist[i],local_max[i]);
-    fprintf(radialHisto, "Radius local min;Avg.Intensity;\n");
-    for(i=0; i<minPoints; i++)
-        fprintf(radialHisto, "%d;%f;\n",local_min_dist[i],local_min[i]);
+    if(verbose){
+        fprintf(radialHisto, "Radius local max;Avg.Intensity;\n");
+        for(i=0; i<maxPoints; i++)
+            fprintf(radialHisto, "%d;%f;\n",local_max_dist[i],local_max[i]);
+        fprintf(radialHisto, "Radius local min;Avg.Intensity;\n");
+        for(i=0; i<minPoints; i++)
+            fprintf(radialHisto, "%d;%f;\n",local_min_dist[i],local_min[i]);
     
-    //Close files
-    fclose(radialHisto);
-    fclose(radialVarHisto);
-    fclose(radialPeaks);//TEST
-    fclose(radialVarPeaks);//TEST
+        //Close files
+        fclose(radialHisto);
+        fclose(radialVarHisto);
+        fclose(radialPeaks);//TEST
+        fclose(radialVarPeaks);//TEST
     
     /* GNUPLOT*/
-    
-    gnuplot(originalFileName, int_rad, var_rad);
-    gnuplot_Peaks(originalFileName, int_log_rad, var_log_rad);
+        gnuplot(originalFileName, int_rad, var_rad);
+        gnuplot_Peaks(originalFileName, int_log_rad, var_log_rad);
     
     /* END GNUPLOT*/
     
-    free(int_rad);free(var_rad);
-    free(int_log_rad);free(var_log_rad);
+        free(int_rad);free(var_rad);
+        free(int_log_rad);free(var_log_rad);
+    
+    }
     
     int dis_min_beg=maxDis, dis_min_end=0;
     
@@ -531,21 +552,25 @@ int main(int argc, char* argv[]) {
     //filename
     aux->fileName = addExtension(aux->fileName, "_inverse.tif");
     
-    fprintf(stdout, "print result...\n");fflush(stdout);
     //print result
-    res = writeTiffImage(aux->fileName,aux);
+    if(verbose){
+        fprintf(stdout, "print result...\n");fflush(stdout);
+        writeTiffImage(aux->fileName,aux);
+    }
     
 /* END TEST FOURIER FILTERING */
-    //Get fourier spectrum of the frequency domain
-    fourierSpectrumImage(aux->image, outComp, aux->height);
-    
-    //filename
-    aux->fileName = addExtension(aux->fileName, "_filtered.tif");
+    if(verbose){
+        //Get fourier spectrum of the frequency domain
+        fourierSpectrumImage(aux->image, outComp, aux->height);
+
+        //filename
+        aux->fileName = addExtension(aux->fileName, "_filtered.tif");
         
-    //Output spectrum
-    res = writeTiffImage(aux->fileName,aux);
+        //Output spectrum
+        writeTiffImage(aux->fileName,aux);
     
-    inverseFourier(aux->image, outComp, aux->height);
+        inverseFourier(aux->image, outComp, aux->height);
+    }
     
     fprintf(stdout, "Done\n");fflush(stdout);
 /* END FOURIER*/
@@ -682,14 +707,18 @@ int main(int argc, char* argv[]) {
 
     //filename
     aux->fileName = addExtension(aux->fileName, "_binarized.tif");
-    res = writeTiffImage(aux->fileName,aux);
+    if(verbose){
+        writeTiffImage(aux->fileName,aux);
+    }
 
 /* BEGIN CLOSING*/
     aux = closing(aux);
 
     //filename
     aux->fileName = addExtension(aux->fileName, "_closed.tif");    
-    res = writeTiffImage(aux->fileName,aux);
+    if(verbose){
+        writeTiffImage(aux->fileName,aux);
+    }
 
 /* END CLOSING */
 
@@ -749,7 +778,9 @@ int main(int argc, char* argv[]) {
     //filename
     aux->fileName = addExtension(aux->fileName, "_centroid.tif");
 
-    res = writeTiffImage(aux->fileName, aux);
+    if(verbose){
+        writeTiffImage(aux->fileName, aux);
+    }
     
 /* END REGION DETECTION*/
     
@@ -780,21 +811,23 @@ int main(int argc, char* argv[]) {
     //filename
     aux->fileName = addExtension(aux->fileName, "_masked.tif");
     
-    res = writeTiffImage(aux->fileName, masked);
+    if(verbose){
+        writeTiffImage(aux->fileName, masked);
+    }
     
     fprintf(stdout, "Done Final wdim:%d\n",wdim);
     
 /* END APPLYING MASK */
     
-    //validation
-    if(res != 0){
-        goto error;
-    }
-    
     //clean up
     destroyTiffImage(image);
     //destroyTiffImage(contrasted);
     destroyTiffImage(aux);
+    
+    //Stop timer
+    GET_TIME(finishTime);
+    fprintf(stdout,"The code to be timed took %f seconds\n", finishTime - startTime);
+    
     return 0;
 
 //error handling
