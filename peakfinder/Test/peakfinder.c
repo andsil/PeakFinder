@@ -1,9 +1,5 @@
 #ifndef RELEASE
 
-//TODO:
-//-adicionado histograma de pontos com base na sua intensidade de pixeis
-//obhetivo: escolher o minimo local antes e depois dos pontos realçados para cortar
-
 #include <stdio.h>//fgets, fprintf, etc
 #include <stdlib.h>//realloc
 #include <string.h>//strchr
@@ -743,7 +739,7 @@ int main(int argc, char* argv[]) {
         fprintf(stdout, "Something went wrong (finding regions)\n");fflush(stdout);
         goto error;
     }
-    
+
     image->pointCount = aux->pointCount = regionCount(aux->listRegions);
     
     /*
