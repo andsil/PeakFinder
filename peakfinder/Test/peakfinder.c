@@ -1,13 +1,9 @@
 #ifndef RELEASE
 
-//TODO:
-//-adicionado histograma de pontos com base na sua intensidade de pixeis
-//obhetivo: escolher o minimo local antes e depois dos pontos realçados para cortar
-
 #include <stdio.h>//fgets, fprintf, etc
 #include <stdlib.h>//realloc
 #include <string.h>//strchr
-//#include <fftw3.h>
+#include <fftw3.h>
 //#include <inttypes.h>//PRId32
 //#include <unistd.h>//usleep
 
@@ -157,18 +153,71 @@ int main(int argc, char* argv[]) {
 /* BEGIN FOURIER */
     fprintf(stdout, "Fourier...\n");fflush(stdout);
     
+    int width = aux->width; int height = aux->height;
+    
     aux = cloneTiffImage(image);
 
     //filename
     aux->fileName = addExtension(aux->fileName, "_fourier.tif");
     
+    /////////////////////////////////////////////////////////////////////////////
+#if 0
+    double clipMag; u_int8_t *phase;
+    // The size of the whole image.
+    int size        = height * width;
+
+    // Allocate input and output buffers
+    fftw_complex* buf1	= (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * size);
+    fftw_complex* buf2	= (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * size);
+
+    // Copy in image data as real values for the transform.
+    for(i = 0; i < size; i++) {
+        for(j=0; j<width; j++){
+            buf1[i*width+j][0]	= aux->image[i][j];
+            buf1[i*width+j][1]	= 0;
+        }
+    }
+
+    // Transform to frequency space.
+    fftw_plan pFwd = fftw_plan_dft_2d(width, height, buf1, buf2, FFTW_FORWARD, FFTW_ESTIMATE);
+    fftw_execute(pFwd);
+    fftw_destroy_plan(pFwd);
+/*
+    // Clip the magnitude
+    for (i = 0; i < size; i++) {
+        double re       = buf2[i][0];
+        double im       = buf2[i][1];
+        double mag      = sqrt (re*re + im*im);
+        double clipped  = mag > clipMag ? 1.0 : mag / clipMag;
+        int v           = round(clipped*255);
+        image->red[i]   = v;
+        image->green[i] = v;
+        image->blue[i]  = v;
+
+        double p        = atan(im/re);
+        double scale    = (p + PI) / (2 * PI);
+        phase[i]        = round(scale*255);
+    }
+*/
+    // Cleanup.
+    fftw_free(buf1);
+    fftw_free(buf2);
+#endif
+/*
+    fftw_plan plan;
+    
+    plan = fftw_plan_dft_r2c_2d( aux->height, aux->width, planner_scratch, (fftw_complex *) half_complex, 0 );
+
+    fftw_execute_dft_r2c( plan, (double *) real->data, (fftw_complex *) half_complex );
+
+    fftw_destroy_plan( plan );*/
+    /////////////////////////////////////////////////////////////////////////////
+    
     //Alloc memory
     Complex** outComp = (Complex**) malloc (sizeof(Complex*)*aux->height);
-    Complex** outCompFilter = (Complex**) malloc (sizeof(Complex*)*aux->height);
     int u;
     for(u=0; u<aux->height; u++){
         outComp[u] = (Complex*) malloc (sizeof(Complex)*aux->width);
-        outCompFilter[u] = (Complex*) malloc (sizeof(Complex)*aux->width);
     }
     //Transform image into frequency domain
     fourier(outComp, aux->image, aux->height);
@@ -185,7 +234,6 @@ int main(int argc, char* argv[]) {
     
     fprintf(stdout, "apply filter...\n");fflush(stdout);
     
-    int width = aux->width; int height = aux->height;
     //int D;
     
     //REF: https://github.com/ajatix/iplab/blob/3de740d83e05a449acfa37b9c1f506893176ac49/Expt6/FFTAnalysis.cpp
