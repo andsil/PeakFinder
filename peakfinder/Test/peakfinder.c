@@ -791,7 +791,7 @@ int main(int argc, char* argv[]) {
         fprintf(stdout, "Something went wrong (finding regions)\n");fflush(stdout);
         goto error;
     }
-    
+
     image->pointCount = aux->pointCount = regionCount(aux->listRegions);
     
     /*

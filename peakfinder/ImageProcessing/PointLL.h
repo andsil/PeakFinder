@@ -18,7 +18,7 @@ extern "C" {
 typedef struct sPointCoord{
     float x;
     float y;
-} PointCoord;
+} PointCoord;           //size: 
     
 /**
  * Point - Describes a Point in its 2D coordinates and the
@@ -27,17 +27,16 @@ typedef struct sPointCoord{
 typedef struct sPoint{
     PointCoord coordinates; //2D Coordinates
     uint8      value;       //Intensity value (unsigned 8-bit)
-}*Point;
+}Point;
 
 /**
  * List of Points - Includes a Point, identified by an ID and a
  * pointer for the following and previous Point.
  */
 typedef struct sPointLL{
-    int id;                         //Point ID
-    Point point;                    //Pointer to Point
-    struct sPointLL* nextPoint;     //Pointer to next Point
-    struct sPointLL* prevPoint;     //Pointer to previous Point
+    int lenght;                     //Current occupied indexes
+    int size;                       //Allocated array size
+    Point *points;                  //Array of points
 }*PointLL;
 
 /*****************************************************************
@@ -56,14 +55,19 @@ typedef struct sPointLL{
 /**
  * Creates a new list of Points with the indicated Point.
  */
-PointLL createNewPointLL(Point point);
+PointLL createNewPointLL(Point* point);
+
+/**
+ * Reallocates the PointLL array to double the size
+ */
+PointLL realocPointLL(PointLL list);
 
 /** INSERT **/
 
 /**
  * Inserts a new Point at the end of the list.
  */
-PointLL addPointLLEntry(PointLL list, Point addPoint);
+PointLL addPointLLEntry(PointLL list, Point* addPoint);
 
 /** REMOVE **/
 
@@ -78,21 +82,6 @@ PointLL remPointLLEntry(PointLL entry, int remId);
 void remAllPointLL(PointLL list);
 
 /** GETS **/
-
-/**
- * Gets a Point identified by its ID from the list.
- */
-PointLL getPointEntry(PointLL list, int pointID);
-
-/**
- * Gets the last Point from the list.
- */
-PointLL getLastPointEntry(PointLL list);
-
-/**
- * Gets the first Point from the list.
- */
-PointLL getFirstPointEntry(PointLL list);
 
 /**
  * From the given list of Points gets the maximum and minimum 2D coordinates
@@ -127,14 +116,14 @@ void updateIDNextPointLL(PointLL point, int increment);
 /**
  * Creates a new Point
  */
-Point createNewPoint(float coordX, float coordY, uint8 value);
+Point* createNewPoint(float coordX, float coordY, uint8 value);
 
 /** REMOVE **/
 
 /**
  * Removes the Point (free memory).
  */
-void remPoint(Point point);
+void remPoint(Point* point);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################

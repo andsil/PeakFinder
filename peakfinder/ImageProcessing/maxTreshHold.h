@@ -45,12 +45,6 @@ RegionLL findRegions(TiffImage img);
 int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, int j);
 
 /**
- * DEACTIVATED -> BIG BUG PRESENT!
- * @param img
- */
-void getWDim(TiffImage img);
-
-/**
  * Get the (minimum) distance between centroids
  * @param img
  * @return 

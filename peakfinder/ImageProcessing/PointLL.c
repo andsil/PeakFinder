@@ -11,10 +11,9 @@ PointLL newPointLL(){
         goto error;
     }
     
-    res->id        = 0;
-    res->nextPoint = NULL;
-    res->prevPoint = NULL;
-    res->point     = NULL;
+    res->size = 8;
+    res->points = (Point*) malloc(sizeof(Point)*res->size);
+    res->lenght = 0;
     
     return res;
     
@@ -25,16 +24,26 @@ error:
 
 /** CONSTRUCTOR **/
 
-PointLL createNewPointLL(Point point){
+PointLL createNewPointLL(Point* point){
     PointLL res;
     
     if(!(res = newPointLL())){
         goto error;
     }
     
+    //if occupation of array is greater than 80% -> double array size
+    if(res->lenght/res->size > 0.8){
+        realocPointLL(res);
+    }
+    
     //add first element
-    res->id    = 1;
-    res->point = point;
+    res->points[res->lenght].value = point->value;
+    res->points[res->lenght].coordinates.x = point->coordinates.x;
+    res->points[res->lenght].coordinates.y = point->coordinates.y;
+    res->lenght++;
+    
+    //free Point memory
+    remPoint(point);
     
     return res;
     
@@ -42,11 +51,21 @@ error:
     return NULL;   
 }
 
+PointLL realocPointLL(PointLL list){
+    //validation
+    if(list == NULL){
+        return NULL;
+    }
+    
+    list->size *= 2;
+    list->points = (Point*) realloc(list->points, list->size*sizeof(Point));
+    
+    return list;
+}
+
 /** INSERT **/
 
-PointLL addPointLLEntry(PointLL list, Point addPoint){
-    PointLL lastPoint, newEntry;
-
+PointLL addPointLLEntry(PointLL list, Point* addPoint){
     if(!addPoint){
         return list;
     }
@@ -54,149 +73,52 @@ PointLL addPointLLEntry(PointLL list, Point addPoint){
     if(!list){
         return createNewPointLL(addPoint);
     }
-
-    if(!(newEntry = newPointLL())){
-        goto error;
+    
+    //if occupation of array is greater than 80% -> double array size
+    if(list->lenght/list->size > 0.8){
+        realocPointLL(list);
     }
-
-    if(!(lastPoint = getLastPointEntry(list))){
-        goto error;
-    }
-
-    newEntry->id        = lastPoint->id + 1;
-    newEntry->point     = addPoint;
-    newEntry->prevPoint = lastPoint;
-    newEntry->nextPoint = NULL;
-
-    lastPoint->nextPoint= newEntry;
-
+    
+    //adds point to the array
+    list->points[list->lenght].value = addPoint->value;
+    list->points[list->lenght].coordinates.x = addPoint->coordinates.x;
+    list->points[list->lenght].coordinates.y = addPoint->coordinates.y;
+    list->lenght++;
+    
+    //free Point memory
+    remPoint(addPoint);
     return list;
-
-error:
-    fprintf(stderr, "ERROR:An error occurred\n");
-    return NULL;
 }
 
 /** REMOVE **/
 
-PointLL remPointLLEntry(PointLL entry, int remId){
-    PointLL prev, act, next;
-
-    if(!entry){
+PointLL remPointLLEntry(PointLL list, int remId){
+    int i;
+    
+    //validation
+    if(!list){
         return NULL;
     }
-
-    act = getPointEntry(entry, remId);
-
-    if(act){
-        //get neighbors pointers
-        next = act->nextPoint;
-        prev = act->prevPoint;
-
-        //update neighbors pointers
-        if(next){
-            next->prevPoint = prev;
+    
+    //check array limits
+    if(remId>=0 && remId<list->lenght){
+        //changes array positions
+        for(i=remId; i<list->lenght-1; i++){
+            list->points[i] = list->points[i+1];
         }
-        if(prev){
-            prev->nextPoint = next;
-        }
-
-        //remove Point Entry and free memory
-        remPoint(act->point);
-        free(act);
-
-        //update ID value
-        updateIDNextPointLL(next,-1);
+        
+        list->lenght--;
     }
     
-    return entry;
+    return list;
 }
 
 void remAllPointLL(PointLL list){
-    PointLL aux, next;
-    
-    //validation
-    if(!list){
-        return;
-    }
-    
-    aux = list;
-    while(aux->nextPoint){
-        next = aux->nextPoint;
-        free(aux->point);
-        free(aux);
-        aux = next;
-    }
+    free(list->points);
+    free(list);
 }
 
 /** GETS **/
-
-PointLL getPointEntry(PointLL list, int pointID){
-    PointLL aux, res = NULL;
-    
-    if(!list){
-        return NULL;
-    }
-    
-    //from the start
-    aux = getFirstPointEntry(list);
-    
-    while(aux->nextPoint){
-        if(aux->id == pointID){
-            res = aux;
-            break;
-        }
-        aux = aux->nextPoint;
-    }
-    
-    return res;
-}
-
- PointLL getLastPointEntry(PointLL list){
-    PointLL aux;
-    
-    //validation
-    if(!list){
-        return NULL;
-    }
-    
-    aux = list;
-    
-    while(aux->nextPoint){
-        aux = aux->nextPoint;
-    }
-
-    return aux;
-
-}
-
-PointLL getFirstPointEntry(PointLL list){
-     PointLL aux;
-    
-    //validation
-    if(!list){
-        return NULL;
-    }
-    
-    aux = list;
-    
-    while(aux->prevPoint){
-        aux = aux->prevPoint;
-    }
-
-    return aux;
-
-}
-
-/** OTHER **/
-
-void updateIDNextPointLL(PointLL point, int increment){
-     if(!point)
-        return;
-    point->id += increment;
-    updateIDNextPointLL(point->nextPoint, increment);
-
-}
 
 void getPointLLParameters(PointLL list, float *coordXBeg, float *coordYBeg,
         float *coordXEnd, float *coordYEnd, uint8 *minValue, uint8 *maxValue,
@@ -208,9 +130,7 @@ void getPointLLParameters(PointLL list, float *coordXBeg, float *coordYBeg,
     //variables
     float xMin, yMin, xMax, yMax;
     uint8 minV, maxV;
-    int   counter;
-    PointLL auxLL;
-    Point   auxP;
+    int   i, counter;
     
     //validation
     if(!list)
@@ -222,18 +142,14 @@ void getPointLLParameters(PointLL list, float *coordXBeg, float *coordYBeg,
     minV = 255; maxV = 0;
     counter = 0;
     
-    //Put pointer from the beginning of the list
-    auxLL = getFirstPointEntry(list);
-    while(auxLL){
-        auxP = auxLL->point;
-        if(auxP->coordinates.x < xMin) xMin = auxP->coordinates.x;
-        if(auxP->coordinates.x > xMax) xMax = auxP->coordinates.x;
-        if(auxP->coordinates.y < yMin) yMin = auxP->coordinates.y;
-        if(auxP->coordinates.y > yMax) yMax = auxP->coordinates.y;
-        if(auxP->value  < minV) minV = auxP->value;
-        if(auxP->value  > maxV) maxV = auxP->value;
+    for(i=0; i<list->lenght; i++){
+        if(list->points[i].coordinates.x < xMin) xMin = list->points[i].coordinates.x;
+        if(list->points[i].coordinates.x > xMax) xMax = list->points[i].coordinates.x;
+        if(list->points[i].coordinates.y < yMin) yMin = list->points[i].coordinates.y;
+        if(list->points[i].coordinates.y > yMax) yMax = list->points[i].coordinates.y;
+        if(list->points[i].value  < minV) minV = list->points[i].value;
+        if(list->points[i].value  > maxV) maxV = list->points[i].value;
         counter++;
-        auxLL = auxLL->nextPoint;
     }
 
     //save obtained values
@@ -262,8 +178,6 @@ PointCoord* compute2DPolygonCentroid(PointLL list, PointCoord* centroid, int sta
 #define MAX 1
     
     //variables
-    PointLL auxPLL;
-    Point auxP = NULL;
     float signedArea = 0.0;
     int x0 = 0.0; // Current vertex X
     int y0 = 0.0; // Current vertex Y
@@ -275,8 +189,6 @@ PointCoord* compute2DPolygonCentroid(PointLL list, PointCoord* centroid, int sta
     int auxX, auxY;
     //in a square, there is two x coordinates for each y -> minX and maxX
     int perimeter[sizeY][2];
-    //Pointer to the original PointLL
-    //PointLL perimeterPointer[sizeY][2];
     
     //validation
     if(!list){
@@ -289,37 +201,26 @@ PointCoord* compute2DPolygonCentroid(PointLL list, PointCoord* centroid, int sta
     for(i=0; i<sizeY+1; i++){
         perimeter[i][MIN] = -1;//startX+sizeX; //init minimum at maximum
         perimeter[i][MAX] = -1;//sizeX; //init maximum at minimum
-        //perimeterPointer[i][MIN] = NULL;
-        //perimeterPointer[i][MAX] = NULL;
     }
 
     //Note: Following loop cannot be in getPointLLParameters because sizeY and 
     //SizeX are needed and these are only obtained after one pass.
-    auxPLL = getFirstPointEntry(list);
-    while(auxPLL){
-        auxP = auxPLL->point;
-        //validation
-        if(!auxP){
-            //Should not enter here!
-            fprintf(stderr, "Warning: Skipped a Point -> index out of range\n");
-        } else {
-            auxX = auxP->coordinates.x;
-            auxY = auxP->coordinates.y;
-            //checks if the point is valid to be used as perimeter array index
-            if(isInside(auxY-startY, auxX-startX, sizeY, sizeX)){
-                //if X coordinate for some Y is lower than recorded before
-                if(perimeter[auxY-startY][MIN] > auxX || perimeter[auxY-startY][MIN] < 0){
-                    perimeter[auxY-startY][MIN] = auxX;
-                    //perimeterPointer[auxY-startY][MIN] = auxPLL;
-                }
-                //if X coordinate for some Y is higher than recorded before
-                if(perimeter[auxY-startY][MAX] < auxX || perimeter[auxY-startY][MAX] < 0){
-                    perimeter[auxY-startY][MAX] = auxX;
-                    //perimeterPointer[auxY-startY][MAX] = auxPLL;
-                }
+    for(i=0; i<list->lenght; i++){
+        auxX = list->points[i].coordinates.x;
+        auxY = list->points[i].coordinates.y;
+        //checks if the point is valid to be used as perimeter array index
+        if(isInside(auxY-startY, auxX-startX, sizeY, sizeX)){
+            //if X coordinate for some Y is lower than recorded before
+            if(perimeter[auxY-startY][MIN] > auxX || perimeter[auxY-startY][MIN] < 0){
+                perimeter[auxY-startY][MIN] = auxX;
+                //perimeterPointer[auxY-startY][MIN] = auxPLL;
+            }
+            //if X coordinate for some Y is higher than recorded before
+            if(perimeter[auxY-startY][MAX] < auxX || perimeter[auxY-startY][MAX] < 0){
+                perimeter[auxY-startY][MAX] = auxX;
+                //perimeterPointer[auxY-startY][MAX] = auxPLL;
             }
         }
-        auxPLL = auxPLL->nextPoint;
     }
     
     //Following calculations are specified in:
@@ -389,22 +290,12 @@ error:
 
 
 int pointCount(PointLL list){
-    PointLL aux;
-    int counter = 1;
-    
     //validation
     if(!list){
         return 0;
     }
     
-    aux=list;
-    while(aux->nextPoint){
-        aux = aux->nextPoint;
-        counter++;
-    }
-    
-    return counter;
-
+    return list->lenght;
 }
 
 /*############## POINT ##############*/
@@ -414,10 +305,10 @@ int pointCount(PointLL list){
 /**
  * SHOULD NOT BE USED OUTSIDE! -> Not declared in header file
  */
-Point newPoint(){
-    Point res;
+Point* newPoint(){
+    Point* res;
     
-    if(!(res = (Point)malloc(sizeof(struct sPoint)))){
+    if(!(res = (Point*)malloc(sizeof(struct sPoint)))){
         goto error;
     }
     
@@ -433,8 +324,8 @@ error:
 }
 
 
-Point createNewPoint(float coordX, float coordY, uint8 value){
-     Point res;
+Point* createNewPoint(float coordX, float coordY, uint8 value){
+     Point* res;
     
     //validation
     if(!(res = newPoint())){
@@ -454,7 +345,7 @@ error:
 
 /** REMOVE **/
 
-void remPoint(Point point){
+void remPoint(Point* point){
     free(point);
 }
 
