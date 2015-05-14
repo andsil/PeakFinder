@@ -232,3 +232,152 @@ int getDistances(TiffImage img){
     //fprintf(stdout, "Min:%.3f Max:%.3f Percentage:%.3f\n", distanceMin, distanceMax, (distanceMax-distanceMin)/distanceMin*100);
     return ((int)round(distanceMin));
 }
+
+
+//BRUTE FORCE -> NOT anymore
+//based on incremental radius
+int getDistancesV2(TiffImage img){
+    //validation
+    if(!img || !(img->listRegions)){
+        fprintf(stderr, "Warning: An error occurred\n");
+        return -1;
+    }
+    
+    //variables
+    int pointCount  = img->pointCount;
+    int width   = img->width;
+    int height  = img->height;
+    int i,ii,j,jj;
+    
+    //Region array to store the pointers for each region mapped as coordinates.
+    //Array indexed by pointID contains the pointer for the region.
+    Region  regionLocs[height][width];
+    double  minDistance[pointCount];//Minimum
+    
+    //Auxiliary variables
+    RegionLL    auxRLL;
+    Region      auxR, auxR2;
+    PointCoord  cent;//, minimumCandidate;
+    int         id, auxX, auxY;
+    int         coordX, coordY, r, d;
+    int         height_half = height/2;
+    
+    //init
+    for(i=0; i<height; i++){
+        for(j=0; j<width; j++){
+            regionLocs[i][j] = NULL;
+        }
+    }
+    
+    double distance, distanceCandidate, distanceMin, distanceMax, distanceX, distanceY;
+    //for each region register the ID
+    auxRLL = img->listRegions;
+    while(auxRLL){
+        //get variables
+        auxR = auxRLL->region;
+        
+        //check null
+        if(auxR != NULL){
+            cent = auxR->centroid;
+
+            //insert pointer to original region in centroid coordinates
+            auxX=(int)round(cent.x);
+            auxY=(int)round(cent.y);
+            if(auxY<0 || auxX<0 || auxY>=height || auxX>=width){
+                fprintf(stderr, "WARNING: [GetDistance] Coordinates out of bounds\n");
+            } else {
+                regionLocs[auxY][auxX] = auxR;
+            }
+        }
+        
+        //next iteration
+        auxRLL = auxRLL->nextRegion;
+    }
+    
+    //init
+    distanceMin = -1;
+    distanceMax = -1;
+    for(id=0; id<=pointCount; id++){
+        minDistance[id] = -1;
+    }
+    
+    //for all points -> could be minimized?
+    for(i=0; i<height; i++){
+        for(j=0; j<width; j++){
+            //init
+            distanceCandidate = -1;
+            
+            //if there is a point in this coordinates
+            auxR = regionLocs[i][j];
+            if(auxR!=NULL){
+                
+                //start radius = 1 and increment until diameter equals image height
+                for(r=3; r<height_half; r++){
+                    
+                    //diameter
+                    d = 2*r;
+                    
+                    //for all coordinates in between, see if there is another centroid
+                    //should NOT enter for inner points already parsed!!!!!
+                    //only process first and last rows/columns
+                    for(ii=0; ii<d; ii++){
+                    //for(ii=0; ii<=1; ii++){
+                        for(jj=0; jj<d; jj++){
+                        //for(jj=0; jj<=1; jj++){
+                            
+                            //get absolute coordinates
+                            coordY = i+ii-r;
+                            coordX = j+jj-r;
+                            //NOTE: diameter increments by 2 units each iteration
+                            //so, if ii/jj is 0, then is the first row/column
+                            //if ii/jj is 1, then is the last row/column
+                            //the inner points had already been processed
+                            //coordY = i+(ii*d)-r;
+                            //coordX = j+(jj*d)-r;
+                            
+                            //if out of image area CONTINUE for next iteration
+                            if(coordY<0 || coordX<0 || coordY>=height || coordX>=width || (coordY==i && coordX==j)) continue;
+                            
+                            //if exists a centroid
+                            auxR2 = regionLocs[coordY][coordX];
+                            if(auxR2 != NULL){
+                                //if inside, get distance
+                                distanceX = fabs(auxR->centroid.x - auxR2->centroid.x);
+                                distanceY = fabs(auxR->centroid.y - auxR2->centroid.y);
+                                distance = sqrt(pow(distanceX,2)+pow(distanceY,2));
+                                //checks if is better then any previously found
+                                if(distanceCandidate < 0 || distance < distanceCandidate){
+                                    distanceCandidate = distance;
+                                    //minimumCandidate.x = coordX;
+                                    //minimumCandidate.y = coordY;
+                                }
+                            }
+                            
+                        }
+                    }
+                    
+                    //if there is a candidate closer then current radius
+                    if(distanceCandidate > 0 && distanceCandidate < r){
+                        //save & stop
+                        minDistance[auxR->id-1] = distanceCandidate;
+                        break;
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    for(id=0; id<pointCount; id++){
+        //if points distance less than 5, skip minimum distance
+        //if((distanceMin > minDistance[id] && minDistance[id] > 5) || distanceMin<0){
+        if((distanceMin > minDistance[id] || distanceMin<0) && minDistance[id] > 5){
+            //printf("[%d] %f\n", id, minDistance[id]);
+            distanceMin = minDistance[id];
+        }
+        if(distanceMax < minDistance[id]){
+            distanceMax = minDistance[id];
+        }
+    }
+    return ((int)ceil(distanceMin));
+}

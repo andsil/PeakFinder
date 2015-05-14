@@ -2,6 +2,10 @@
 #ifndef COMPLEX_H
 #define	COMPLEX_H
 
+#include <stdio.h>
+#include <math.h>
+#include <fftw3.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -19,6 +23,14 @@ double compAbs(Complex a);
 double compAbs2(Complex a);
 void compDisp(Complex a);
 
+//FFTW3 (temporary)
+void fftw_compAdd(fftw_complex a, fftw_complex b, fftw_complex r);
+void fftw_compSub(fftw_complex a, fftw_complex b, fftw_complex r);
+void fftw_compMul(fftw_complex a, fftw_complex b, fftw_complex r);
+void fftw_compDiv(fftw_complex a, fftw_complex b, fftw_complex r);
+double fftw_compAbs(fftw_complex a);
+double fftw_compAbs2(fftw_complex a);
+void fftw_compDisp(fftw_complex a);
 
 #ifdef	__cplusplus
 }

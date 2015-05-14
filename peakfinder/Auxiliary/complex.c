@@ -1,7 +1,8 @@
 //REF: https://github.com/ginrou/ginrou-private/blob/1542f56865b55f10b1c17dbd825b859be20b5a67/src/
-#include <stdio.h>
-#include <math.h>
 #include "complex.h"
+
+#define REAL    0
+#define IMG     1
 
 Complex compAdd(Complex a, Complex b) {
   Complex r;
@@ -55,5 +56,53 @@ void compDisp(Complex a) {
   }
   else {
     printf("%lf%lfi", a.Re, a.Im);
+  }
+}
+
+////////////////////////////////////////////
+
+void fftw_compAdd(fftw_complex a, fftw_complex b, fftw_complex r) {
+
+  r[REAL] = a[REAL] + b[REAL];
+  r[IMG] = a[IMG] + b[IMG];
+}
+
+void fftw_compSub(fftw_complex a, fftw_complex b, fftw_complex r) {
+
+  r[REAL] = a[REAL] - b[REAL];
+  r[IMG] = a[IMG] - b[IMG];
+
+}
+
+void fftw_compMul(fftw_complex a, fftw_complex b, fftw_complex r) {
+
+  r[REAL] = a[REAL] * b[REAL] - a[IMG] * b[IMG];
+  r[IMG] = a[IMG] * b[REAL] + a[REAL] * b[IMG];
+
+}
+
+void fftw_compDiv(fftw_complex a, fftw_complex b, fftw_complex r) {
+  double x;
+
+  x = b[REAL] * b[REAL] + b[IMG] * b[IMG];
+  r[REAL] = (a[REAL] * b[REAL] + a[IMG] * b[IMG]) / x;
+  r[IMG] = (a[IMG] * b[REAL] - a[REAL] * b[IMG]) / x;
+
+}
+
+double fftw_compAbs(fftw_complex a) {
+  return sqrt(a[REAL] * a[REAL] + a[IMG] * a[IMG]);
+}
+
+double fftw_compAbs2(fftw_complex a) {
+  return a[REAL] * a[REAL] + a[IMG] * a[IMG];
+}
+
+void fftw_compDisp(fftw_complex a) {
+  if(a[IMG] >= 0) {
+    printf("%lf+%lfi", a[REAL], a[IMG]);
+  }
+  else {
+    printf("%lf%lfi", a[REAL], a[IMG]);
   }
 }

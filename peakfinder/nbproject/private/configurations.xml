@@ -24,8 +24,6 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a2.tif</runcommandpicklistitem>
-          <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/b2.tif</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/c0.tif</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/c2.tif</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/c1.tif</runcommandpicklistitem>
@@ -34,8 +32,10 @@
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a3.tif</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a3.tif -v</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a0.tif -v</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/c0.tif -v</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a2.tif -v</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}" InputImages/a0.tif -v</runcommand>
+        <runcommand>"${OUTPUT_PATH}" InputImages/a2.tif -v</runcommand>
         <rundir>/home/core/NetBeansProjects/PeakFinder/peakfinder/.</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>

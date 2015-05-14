@@ -1,6 +1,7 @@
 #ifndef MAXTRESHLEVEL_H
 #define	MAXTRESHLEVEL_H
 
+#include <math.h>   //lroundf
 #include <stdio.h>  //fprintf
 #include <tiff.h>   //uint8
 
@@ -50,6 +51,7 @@ int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, in
  * @return 
  */
 int getDistances(TiffImage img);
+int getDistancesV2(TiffImage img);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################

@@ -151,11 +151,11 @@ int main(int argc, char* argv[]) {
     TiffImage aux;
     
 /* BEGIN FOURIER */
-    fprintf(stdout, "Fourier...\n");fflush(stdout);
-    
-    int width = aux->width; int height = aux->height;
+    fprintf(stdout, "Fourier...\n");fflush(stdout);    
     
     aux = cloneTiffImage(image);
+    
+    int width = aux->width; int height = aux->height;
 
     //filename
     aux->fileName = addExtension(aux->fileName, "_fourier.tif");
@@ -839,8 +839,23 @@ int main(int argc, char* argv[]) {
     //get minimum distance between Centroids efficiently
     //getWDim(aux);//->Does not work (something wrong)
     
-    //get minimum distance between Centroids BRUTE FORCE!
+    //get minimum distance between Centroids
+    //int wdim = getDistancesV2(aux);
+    
+    //Timer
+    double startTime2, finishTime2;
+    //Start timer
+    GET_TIME(startTime2);
     int wdim = getDistances(aux);
+    //Stop timer
+    GET_TIME(finishTime2);
+    fprintf(stdout,"The getDistances took %f seconds\n", finishTime2 - startTime2);
+    //Start timer
+    GET_TIME(startTime2);
+    wdim = getDistancesV2(aux);
+    //Stop timer
+    GET_TIME(finishTime2);
+    fprintf(stdout,"The getDistancesV2 took %f seconds\n", finishTime2 - startTime2);
     
     fprintf(stdout, "First wdim:%d\n",wdim);
     
@@ -848,7 +863,7 @@ int main(int argc, char* argv[]) {
     TiffImage masked = aplyMask(image, wdim/2);
     
     //get minimum distance between (corrected) Centroids
-    wdim = getDistances(masked);
+    wdim = getDistancesV2(masked);
     
     //(BUG) reset filename
     free(image->fileName);image->fileName=strdup(originalFileName);
