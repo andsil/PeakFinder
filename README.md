@@ -10,7 +10,7 @@ At certain point, there are plans to make the application run in the Intel Xeon 
 
 The end user must have libtiff installed.
 
-For Linux OS just do the following command:
+For Debian based OS just do the following command:
 
 `$ sudo apt-get install libtiff4 libtiff4-dev`
 
