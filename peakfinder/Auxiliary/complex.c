@@ -46,6 +46,10 @@ double compAbs(Complex a) {
   return sqrt(a.Re * a.Re + a.Im * a.Im);
 }
 
+double compAbsFFTW(fftw_complex a) {
+  return sqrt(a[0] * a[0] + a[1] * a[1]);
+}
+
 double compAbs2(Complex a) {
   return a.Re * a.Re + a.Im * a.Im;
 }

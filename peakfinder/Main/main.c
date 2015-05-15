@@ -1,13 +1,10 @@
 #ifdef RELEASE
-
-//TODO:
-//-adicionado histograma de pontos com base na sua intensidade de pixeis
-//obhetivo: escolher o minimo local antes e depois dos pontos realçados para cortar
+//updated May 15th 2015
 
 #include <stdio.h>//fgets, fprintf, etc
 #include <stdlib.h>//realloc
 #include <string.h>//strchr
-//#include <fftw3.h>
+#include <fftw3.h>
 //#include <inttypes.h>//PRId32
 //#include <unistd.h>//usleep
 
@@ -25,6 +22,7 @@
 #include "../Auxiliary/complex.h"//Complex
 #include "../ImageFilters/fourier.h"//fourier, inverseFourier,...
 
+//#define FFTW
 /*****************************************************************
 ########################    PROTOTYPES    #######################
 *****************************************************************/
@@ -112,101 +110,53 @@ int main(int argc, char* argv[]) {
     
         gnuplot_histogram(histogramGP, histogramFile);
     }
-    
-/* BEGIN HISTOGRAM EQUILIZER CONTRAST */
-    /*TiffImage contrasted;
-    //contrasted = histogramEqualization(image);
-    contrasted = histogramEqualization(gaussianFilter(image));
-    //contrasted = cloneTiffImage(image);
-    //CLAHE(&(contrasted->image[0][0]), (unsigned int)contrasted->width, (unsigned int)contrasted->height,contrasted->minimum, contrasted->maximum, 8, 8, 64, 0.25);
-    
-    fprintf(stdout, "Contrasted Image:\n");fflush(stdout);
-    printf("ndirs=%d ,fileName=%s ,width=%d ,height=%u ,config=%u ,"
-            "fillOrder=%d ,nSamples=%u ,depth=%u ,photometric=%u ,"
-            "resUnit=%u ,xRes=%f ,yRes=%f ,maximum=%u ,"
-            "minimum=%u ,median=%u,average=%u\n",
-            contrasted->ndirs, contrasted->fileName, contrasted->width,
-            contrasted->height, contrasted->config, contrasted->fillOrder,
-            contrasted->nSamples, contrasted->depth, contrasted->photometric,
-            contrasted->resUnit, contrasted->xRes, contrasted->yRes,
-            contrasted->maximum, contrasted->minimum, contrasted->median,
-            contrasted->average);
-    
-    //Write Image
-    fprintf(stdout, "Writing contrasted Image\n");fflush(stdout);
-    writeTiffImage(contrasted->fileName, contrasted);
-    
-    //filename
-    char* histogramCountGP = strdup(originalFileName);
-    histogramCountGP = addExtension(histogramCountGP, "_contHisto.png");
-    FILE* histogramContCSV = fopen("histogramCont.csv","w");
-    fprintf(histogramContCSV, "Intensity;Pixels;\n");
-    for(i=0; i<255; i++){
-        fprintf(histogramContCSV, "%d;%d;\n", i, contrasted->histogram[i]);
-    }
-    fclose(histogramContCSV);
-    
-    gnuplot_histogram(histogramCountGP, "histogramCont.csv");
-    
-    //int res = writeTiffImage("clahe.tif", contrasted);
-    */
-    
-/* END HISTOGRAM EQUILIZER CONTRAST */
     TiffImage aux;
     
 /* BEGIN FOURIER */
     fprintf(stdout, "Fourier...\n");fflush(stdout);
-    
     aux = cloneTiffImage(image);
+    
+    int width = aux->width; int height = aux->height;
 
     //filename
     aux->fileName = addExtension(aux->fileName, "_fourier.tif");
     
+#ifdef FFTW
+    fftw_complex* outComp = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * height * width);
+    #define OUTCOMP(YY,XX) outComp[(YY)*width+(XX)]
+
+    int max_exp = 0;
+    
+    //Transform image into frequency domain
+    fourierFFTW(outComp, aux->image, aux->width);
+#else
     //Alloc memory
     Complex** outComp = (Complex**) malloc (sizeof(Complex*)*aux->height);
-    Complex** outCompFilter = (Complex**) malloc (sizeof(Complex*)*aux->height);
     int u;
     for(u=0; u<aux->height; u++){
         outComp[u] = (Complex*) malloc (sizeof(Complex)*aux->width);
-        outCompFilter[u] = (Complex*) malloc (sizeof(Complex)*aux->width);
     }
-    //Transform image into frequency domain
-    fourier(outComp, aux->image, aux->height);
+    #define OUTCOMP(YY,XX) outComp[YY][XX]
     
+    //Transform image into frequency domain
+    fourier(outComp, aux->image, aux->width);
+#endif
+
     //write image spectrum
     if(verbose){
-        fourierSpectrumImage(aux->image, outComp, aux->height);
-    
+#ifdef FFTW
+        max_exp = fourierSpectrumImageFFTW(aux->image, outComp, aux->width);
+#else
+        fourierSpectrumImage(aux->image, outComp, aux->width);
+#endif
         //Output spectrum
         writeTiffImage(aux->fileName,aux);
     }
-        
+    
 /* BEGIN TEST FOURIER FILTERING */
     
     fprintf(stdout, "apply filter...\n");fflush(stdout);
-    
-    int width = aux->width; int height = aux->height;
-    //int D;
-    
-    //REF: https://github.com/ajatix/iplab/blob/3de740d83e05a449acfa37b9c1f506893176ac49/Expt6/FFTAnalysis.cpp
-    //Butterworth_HPF 
-    /*D = 1024;//-> size of mask
-    for(i=0;i<height;i++) {
-        for(j=0;j<width;j++) {
-            outComp[i][j].Re = outComp[i][j].Re*(1/(1+pow((float)D/sqrt((float)(i-height/2)*(float)(i-height/2)+(float)(j-width/2)*(float)(j-width/2)),2)));
-            outComp[i][j].Im = outComp[i][j].Im*(1/(1+pow((float)D/sqrt((float)(i-height/2)*(float)(i-height/2)+(float)(j-width/2)*(float)(j-width/2)),2)));
-        }
-    }*/
-    
-    //Butterworth_LPF 
-    /*D = 1024;
-    for(i=0;i<height;i++) {
-        for(j=0;j<width;j++) {
-            outComp[i][j].Re = outComp[i][j].Re*(1/(1+pow(sqrt((float)(i-height/2)*(float)(i-height/2)+(float)(j-width/2)*(float)(j-width/2))/(float)D,2)));
-            outComp[i][j].Im = outComp[i][j].Im*(1/(1+pow(sqrt((float)(i-height/2)*(float)(i-height/2)+(float)(j-width/2)*(float)(j-width/2))/(float)D,2)));
-        }
-    }*/
-    /**/
+
     double distance, rest;
     double module1, module2;
     double module1_log, module2_log;
@@ -232,21 +182,6 @@ int main(int argc, char* argv[]) {
     int pointCounter=0;//test variable
     
     int coordX, coordY;
-    /*
-    //LPF
-    D = height_half;
-    D = (int)D*0.05; //5% -> deletes center
-    for(i=0;i<height;i++) {
-        for(j=0;j<width;j++) {
-            coordY = height_half - ((i + height / 2) % height);
-            coordX = width_half - ((j + width / 2) % width);
-            distance = sqrt(pow(coordX,2) + pow(coordY,2));
-            if( distance<D  ) {
-                outComp[i][j].Re = 0;
-                outComp[i][j].Im = 0;
-            }
-        }
-    }*/
 
     //BEGIN RADIAL HISTOGRAM
     
@@ -270,10 +205,21 @@ int main(int argc, char* argv[]) {
         coordX = width_half - ((j + width / 2) % width);
         distance = sqrt(pow(coordX,2) + pow(coordY,2));
         rest = ((distance/1.0)==distance)?0:distance - ((int)distance);
-        module1 = compAbs(outComp[i][j]);
-        
-        //pixel intensity representation
+        //module1 = compAbs(outComp[i][j]);
+#ifdef FFTW
+        if(!verbose){
+            max_exp = max_exp_value(outComp, width);
+        }
+        module1 = compAbsFFTW(OUTCOMP(i,j));
+        if(module1>0){
+            module1 = log10(module1);
+        }
+        module1_log = (module1*100.0)-max_exp/2+64;
+#else
+        module1 = compAbs(OUTCOMP(i,j));
         module1_log = (log10(module1)*100.0)+255;
+#endif        
+        //pixel intensity representation
         if(module1_log < 0){
             module1_log = 0;
         } else if(module1_log > 255){
@@ -282,41 +228,84 @@ int main(int argc, char* argv[]) {
         
         //Warning: Comments in following ifs could make no sense (needs revision)
         if(rest!=0){
+#ifdef FFTW
             if(coordY>0 && coordX>0){//(+,+) -> 2nd quadrant
                 if(((float)coordY)/coordX > 1.5){//more y than x
-                    module2 = compAbs(outComp[i+1][j]);
+                    module2 = compAbsFFTW(OUTCOMP(i+1,j));
                 } else if(((float)coordX)/coordY > 1.5){//more x than y
-                    module2 = compAbs(outComp[i][j-1]);
+                    module2 = compAbsFFTW(OUTCOMP(i,j-1));
                 } else {
-                    module2 = compAbs(outComp[i+1][j-1]);
+                    module2 = compAbsFFTW(OUTCOMP(i+1,j-1));
                 }
             } else if(coordY<0 && coordX>0){//(-,+) -> 3rd quadrant
                 if(((float)abs(coordY))/coordX > 1.5){//more y than x
-                    module2 = compAbs(outComp[i-1][j]);
+                    module2 = compAbsFFTW(OUTCOMP(i-1,j));
                 } else if(((float)coordX)/abs(coordY) > 1.5){//more x than y
-                    module2 = compAbs(outComp[i][j-1]);
+                    module2 = compAbsFFTW(OUTCOMP(i,j-1));
                 } else {
-                    module2 = compAbs(outComp[i-1][j-1]);
+                    module2 = compAbsFFTW(OUTCOMP(i-1,j-1));
                 }
             } else if(coordY<0 && coordX<0){//(-,-) -> 4th quadrant
                 if(((float)abs(coordY))/abs(coordX) > 1.5){//more y than x
-                    module2 = compAbs(outComp[i-1][j]);
+                    module2 = compAbsFFTW(OUTCOMP(i-1,j));
                 } else if(((float)abs(coordX))/abs(coordY) > 1.5){//more x than y
-                    module2 = compAbs(outComp[i][j+1]);
+                    module2 = compAbsFFTW(OUTCOMP(i,j+1));
                 } else {
-                    module2 = compAbs(outComp[i-1][j+1]);
+                    module2 = compAbsFFTW(OUTCOMP(i-1,j+1));
                 }
             } else { //(+,-) -> 1st quadrant
                 if(((float)coordY)/abs(coordX) > 1.5){//more y than x
-                    module2 = compAbs(outComp[i+1][j]);
+                    module2 = compAbsFFTW(OUTCOMP(i+1,j));
                 } else if(((float)abs(coordX))/coordY > 1.5){//more x than y
-                    module2 = compAbs(outComp[i][j+1]);
+                    module2 = compAbsFFTW(OUTCOMP(i,j+1));
                 } else {
-                    module2 = compAbs(outComp[i+1][j+1]);
+                    module2 = compAbsFFTW(OUTCOMP(i+1,j+1));
                 }
             }
+#else
+            if(coordY>0 && coordX>0){//(+,+) -> 2nd quadrant
+                if(((float)coordY)/coordX > 1.5){//more y than x
+                    module2 = compAbs(OUTCOMP(i+1,j));
+                } else if(((float)coordX)/coordY > 1.5){//more x than y
+                    module2 = compAbs(OUTCOMP(i,j-1));
+                } else {
+                    module2 = compAbs(OUTCOMP(i+1,j-1));
+                }
+            } else if(coordY<0 && coordX>0){//(-,+) -> 3rd quadrant
+                if(((float)abs(coordY))/coordX > 1.5){//more y than x
+                    module2 = compAbs(OUTCOMP(i-1,j));
+                } else if(((float)coordX)/abs(coordY) > 1.5){//more x than y
+                    module2 = compAbs(OUTCOMP(i,j-1));
+                } else {
+                    module2 = compAbs(OUTCOMP(i-1,j-1));
+                }
+            } else if(coordY<0 && coordX<0){//(-,-) -> 4th quadrant
+                if(((float)abs(coordY))/abs(coordX) > 1.5){//more y than x
+                    module2 = compAbs(OUTCOMP(i-1,j));
+                } else if(((float)abs(coordX))/abs(coordY) > 1.5){//more x than y
+                    module2 = compAbs(OUTCOMP(i,j+1));
+                } else {
+                    module2 = compAbs(OUTCOMP(i-1,j+1));
+                }
+            } else { //(+,-) -> 1st quadrant
+                if(((float)coordY)/abs(coordX) > 1.5){//more y than x
+                    module2 = compAbs(OUTCOMP(i+1,j));
+                } else if(((float)abs(coordX))/coordY > 1.5){//more x than y
+                    module2 = compAbs(OUTCOMP(i,j+1));
+                } else {
+                    module2 = compAbs(OUTCOMP(i+1,j+1));
+                }
+            }
+#endif
+            if(module2>0){
+                module2 = log10(module2);
+            }
             //pixel intensity representation
+#ifdef FFTW
+            module2_log = (module2*100.0)-max_exp/2+64;
+#else
             module2_log = (log10(module2)*100.0)+255;
+#endif
             if(module2_log < 0){
                 module2_log = 0;
             } else if(module2_log > 255){
@@ -510,28 +499,6 @@ int main(int argc, char* argv[]) {
     
     printf("Minimum begin:%d Minimum end:%d\n", dis_min_beg, dis_min_end);
     
-    /*
-    //HPF
-    D = sqrt(pow(width,2)+pow(height,2));//pitagoras
-    D = (int)D*0.5;
-    for(i=0;i<height;i++) {
-        for(j=0;j<width;j++) {
-            //removes every point with less than 250 pixel intensity
-            if(((log10(compAbs(outComp[i][j])) * 100.0) + 255) <= 250){
-                outComp[i][j].Re = 0;
-                outComp[i][j].Im = 0;
-            }
-            *//*
-            //Removes high frequencies
-            if ((i<(height/2+D/2)) && (i>(height/2-D/2)) && (j<(width/2+D/2)) && (j>(width/2-D/2))) {
-            //if(((i-height/2)*(i-height/2)+(j-width/2)*(j-width/2))>(D/2*D/2)) {
-                outComp[i][j].Re = 0;
-                outComp[i][j].Im = 0;
-            }*//*
-        }
-    }
-    */
-    
     //Pass Band Filter (everything outside dis_min_beg and dis_min_end is erased)
     for(i=0;i<height;i++) {
         for(j=0;j<width;j++) {
@@ -539,15 +506,39 @@ int main(int argc, char* argv[]) {
             coordX = width_half - ((j + width / 2) % width);
             distance = sqrt(pow(coordX,2) + pow(coordY,2));
             if(distance<dis_min_beg-(0.2*dis_min_beg) || distance>dis_min_end+(0.2*dis_min_beg)){
+#ifdef FFTW
+                OUTCOMP(i,j)[0] = 0;
+                OUTCOMP(i,j)[1] = 0;
+#else
                 outComp[i][j].Re = 0;
                 outComp[i][j].Im = 0;
+#endif
             }
         }
     }
     
+    if(verbose){
+        //Get fourier spectrum of the frequency domain
+#ifdef FFTW
+        fourierSpectrumImageFFTW(aux->image, outComp, aux->height);
+#else
+        fourierSpectrumImage(aux->image, outComp, aux->height);
+#endif
+
+        //filename
+        aux->fileName = addExtension(aux->fileName, "_filtered.tif");
+        
+        //Output spectrum
+        writeTiffImage(aux->fileName,aux);
+    }
+    
     fprintf(stdout, "inverseFourier...\n");fflush(stdout);
     //return to space domain
-    inverseFourier(aux->image, outComp, aux->height);
+#ifdef FFTW
+    inverseFourierFFTW(aux->image, outComp, aux->width);
+#else
+    inverseFourier(aux->image, outComp, aux->width);
+#endif
     
     //filename
     aux->fileName = addExtension(aux->fileName, "_inverse.tif");
@@ -557,20 +548,8 @@ int main(int argc, char* argv[]) {
         fprintf(stdout, "print result...\n");fflush(stdout);
         writeTiffImage(aux->fileName,aux);
     }
-    
-/* END TEST FOURIER FILTERING */
-    if(verbose){
-        //Get fourier spectrum of the frequency domain
-        fourierSpectrumImage(aux->image, outComp, aux->height);
 
-        //filename
-        aux->fileName = addExtension(aux->fileName, "_filtered.tif");
-        
-        //Output spectrum
-        writeTiffImage(aux->fileName,aux);
-    
-        inverseFourier(aux->image, outComp, aux->height);
-    }
+/* END TEST FOURIER FILTERING */
     
     fprintf(stdout, "Done\n");fflush(stdout);
 /* END FOURIER*/
@@ -743,35 +722,9 @@ int main(int argc, char* argv[]) {
         fprintf(stdout, "Something went wrong (finding regions)\n");fflush(stdout);
         goto error;
     }
-    
+
     image->pointCount = aux->pointCount = regionCount(aux->listRegions);
-    
-    /*
-    //Validation
-    if(regionList != NULL){
-        RegionLL auxRL = getLastRegionEntry(regionList);
-        if(auxRL){
-            fprintf(stdout, "There are %d regions\n" , auxRL->id);fflush(stdout);
-        } else {
-            fprintf(stdout, "Something went wrong (Getting last region)\n");fflush(stdout);
-            goto error;
-        }
-        
-        Region auxReg = auxRL->region;
-        if(!auxReg){
-            fprintf(stderr, "Something went wrong (No Region to present)\n");fflush(stdout);
-            goto error;
-        } else {
-            fprintf(stdout, "Last Region starts at (%f, %f) end at (%f,%f) Pixels:%d minVal:%u maxVal:%u Centroid (%.3f,%.3f)\n" ,
-                    auxReg->coordXBeg, auxReg->coordYBeg, auxReg->coordXEnd, auxReg->coordYEnd,
-                    auxReg->pointCount, auxReg->minValue, auxReg->maxValue, auxReg->centroid.x, auxReg->centroid.y);fflush(stdout);
-        }
-        
-    } else {
-        fprintf(stderr, "No list to present!\n");fflush(stdout);
-        goto error;
-    }
-*/
+
     //show centroid for each region in the result image
     showCentroid(aux, aux->listRegions);
 
@@ -791,8 +744,23 @@ int main(int argc, char* argv[]) {
     //get minimum distance between Centroids efficiently
     //getWDim(aux);//->Does not work (something wrong)
     
-    //get minimum distance between Centroids BRUTE FORCE!
+    //get minimum distance between Centroids
+    //int wdim = getDistancesV2(aux);
+    
+    //Timer
+    double startTime2, finishTime2;
+    //Start timer
+    GET_TIME(startTime2);
     int wdim = getDistances(aux);
+    //Stop timer
+    GET_TIME(finishTime2);
+    fprintf(stdout,"The getDistances took %f seconds\n", finishTime2 - startTime2);
+    //Start timer
+    GET_TIME(startTime2);
+    wdim = getDistancesV2(aux);
+    //Stop timer
+    GET_TIME(finishTime2);
+    fprintf(stdout,"The getDistancesV2 took %f seconds\n", finishTime2 - startTime2);
     
     fprintf(stdout, "First wdim:%d\n",wdim);
     
@@ -800,7 +768,7 @@ int main(int argc, char* argv[]) {
     TiffImage masked = aplyMask(image, wdim/2);
     
     //get minimum distance between (corrected) Centroids
-    wdim = getDistances(masked);
+    wdim = getDistancesV2(masked);
     
     //(BUG) reset filename
     free(image->fileName);image->fileName=strdup(originalFileName);
@@ -949,7 +917,11 @@ void gnuplot(char* originalFileName, char* int_rad, char* var_rad){
     fprintf(pipe, "set title \"Fourier transform - radial module analysis\" \n");
     fprintf(pipe, "set xrange [ 0.00000 : ]\n");
     fprintf(pipe, "set xlabel \"Distance (px)\"\n");
+#ifdef FFTW
+    fprintf(pipe, "set yrange [ 0.00000 : 8.00000] noreverse nowriteback\n");
+#else
     fprintf(pipe, "set yrange [ 0.00000 : 0.800 ] noreverse nowriteback\n");
+#endif
     fprintf(pipe, "set ylabel \"Module Avg.\"\n");
     fprintf(pipe, "plot \"%s\" every ::1::724 using 3 with boxes\n", int_rad);
     pclose(pipe);
@@ -965,7 +937,11 @@ void gnuplot(char* originalFileName, char* int_rad, char* var_rad){
     fprintf(pipe, "set title \"Fourier transform - radial module variation analysis\" \n");
     fprintf(pipe, "set xrange [ 0.00000 : ]\n");
     fprintf(pipe, "set xlabel \"Distance (px)\"\n");
+    #ifdef FFTW
+    fprintf(pipe, "set yrange [ 0.00000 : ] noreverse nowriteback\n");
+#else
     fprintf(pipe, "set yrange [ 0.00000 : 7.000 ] noreverse nowriteback\n");
+#endif
     fprintf(pipe, "set ylabel \"Module variation\"\n");
     fprintf(pipe, "plot \"%s\" every ::1::724 using 5 with boxes\n", var_rad);
     pclose(pipe);

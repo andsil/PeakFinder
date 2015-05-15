@@ -31,13 +31,13 @@
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a1.tif</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a3.tif</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a3.tif -v</runcommandpicklistitem>
-          <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a0.tif -v</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/c0.tif -v</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a0.tif -v</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" InputImages/a2.tif -v</runcommandpicklistitem>
         </runcommandpicklist>
         <runcommand>"${OUTPUT_PATH}" InputImages/a2.tif -v</runcommand>
         <rundir>/home/core/NetBeansProjects/PeakFinder/peakfinder/.</rundir>
-        <buildfirst>false</buildfirst>
+        <buildfirst>true</buildfirst>
         <terminal-type>0</terminal-type>
         <remove-instrumentation>0</remove-instrumentation>
         <environment>

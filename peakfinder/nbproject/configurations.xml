@@ -108,14 +108,14 @@
       </toolsSet>
       <compileType>
         <cTool>
-          <commandLine>-lm -ltiff -O3</commandLine>
+          <commandLine>-O3 -ftree-vectorize -lm -ltiff</commandLine>
           <warningLevel>2</warningLevel>
         </cTool>
         <ccTool>
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <commandLine>-lm -ltiff</commandLine>
+          <commandLine>-lm -ltiff -lfftw3</commandLine>
         </linkerTool>
       </compileType>
       <item path="Auxiliary/auxFunc.c" ex="false" tool="0" flavor2="0">

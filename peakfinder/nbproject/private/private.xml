@@ -7,9 +7,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/fourier.c</file>
             <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/Test/peakfinder.c</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageProcessing/maxTreshHold.c</file>
-            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageProcessing/maxTreshHold.h</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/Auxiliary/complex.h</file>
+            <file>file:/home/core/NetBeansProjects/PeakFinder/peakfinder/ImageFilters/fourier.h</file>
         </group>
     </open-files>
 </project-private>

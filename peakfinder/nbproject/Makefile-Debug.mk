@@ -54,7 +54,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=-lm -ltiff -O3
+CFLAGS=-O3 -ftree-vectorize -lm -ltiff
 
 # CC Compiler Flags
 CCFLAGS=
@@ -75,7 +75,7 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder ${OBJECTFILES} ${LDLIBSOPTIONS} -lm -ltiff
+	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/peakfinder ${OBJECTFILES} ${LDLIBSOPTIONS} -lm -ltiff -lfftw3
 
 ${OBJECTDIR}/Auxiliary/auxFunc.o: Auxiliary/auxFunc.c 
 	${MKDIR} -p ${OBJECTDIR}/Auxiliary
