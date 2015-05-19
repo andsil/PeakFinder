@@ -131,12 +131,10 @@ void fourier(Complex** out, uint8** in, int FFT_SIZE) {
     int y, x;
     double *re, *im;
     
-    //memory allocation
-  
-omp_set_num_threads(4);
     // FFT //
-#pragma omp parallel for default(shared) private(x,re,im)
+    #pragma omp parallel for default(shared) private(x,re,im)
     for (y = 0; y < FFT_SIZE; y++) {
+        //memory allocation
           re = (double*) malloc (FFT_SIZE * sizeof(double));
           im = (double*) malloc (FFT_SIZE * sizeof(double));
         for (x = 0; x < FFT_SIZE; x++) {
@@ -193,9 +191,7 @@ void inverseFourier(uint8** out, Complex** in, int FFT_SIZE) {
     int y, x;
     double *re, *im;
     double **Real, **Imag;
-    omp_set_num_threads(4);
     //memory allocation
-
     Real = (double**) malloc (FFT_SIZE * sizeof(double*));
     Imag = (double**) malloc (FFT_SIZE * sizeof(double*));
     for(x=0; x<FFT_SIZE; x++){
@@ -204,8 +200,9 @@ void inverseFourier(uint8** out, Complex** in, int FFT_SIZE) {
     }
 
     // IFFT //
-#pragma omp parallel for default(shared) private(y,re,im)
+    #pragma omp parallel for default(shared) private(y,re,im)
     for (x = 0; x < FFT_SIZE; x++) {
+        //memory allocation
         re = (double*) malloc (FFT_SIZE * sizeof(double));
         im = (double*) malloc (FFT_SIZE * sizeof(double));
         for (y = 0; y < FFT_SIZE; y++) {
@@ -290,15 +287,16 @@ void fourierSpectrumImage(uint8** out, Complex** in, int FFT_SIZE) {
     int max_exp = -100, exp;
     //double fra;
     int spectrum[FFT_SIZE][FFT_SIZE];
-omp_set_num_threads(4);
+
     // Power Spectrum //
     fprintf(stderr, "Calculating power spectrum...\n");
-#pragma omp parallel for default(shared) private(x,exp,spectrum)
+    
+    #pragma omp parallel for default(shared) private(x,exp)
     for (y = 0; y < FFT_SIZE; y++) {
         for (x = 0; x < FFT_SIZE; x++) {
             exp = log10(compAbs(in[y][x])) * 100.0;
             spectrum[y][x] = exp;
-            #pragma omp critical
+            //#pragma omp critical
             {
                 if (max_exp < exp) {
                     max_exp = exp;

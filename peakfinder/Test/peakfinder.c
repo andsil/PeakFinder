@@ -82,6 +82,7 @@ int main(int argc, char* argv[]) {
     }
     
     //test detail data
+    printf("Maximum threads used:%d\n",omp_get_max_threads());
     fprintf(stdout, "Original Image:\n");fflush(stdout);
     fprintf(stdout, "ndirs=%d ,fileName=%s ,width=%d ,height=%u ,config=%u ,"
             "fillOrder=%d ,nSamples=%u ,depth=%u ,photometric=%u ,"
@@ -744,7 +745,7 @@ int main(int argc, char* argv[]) {
     //getWDim(aux);//->Does not work (something wrong)
     
     //get minimum distance between Centroids
-    int wdim = getDistances(aux);
+    int wdim = getDistancesV2(aux);
     
     /*//Timer
     double startTime2, finishTime2;
@@ -767,7 +768,7 @@ int main(int argc, char* argv[]) {
     TiffImage masked = aplyMask(image, wdim/2);
     
     //get minimum distance between (corrected) Centroids
-    wdim = getDistances(masked);
+    wdim = getDistancesV2(masked);
     
     //(BUG) reset filename
     free(image->fileName);image->fileName=strdup(originalFileName);

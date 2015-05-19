@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -l walltime=10:00
+#PBS -j oe
+#PBS -N out
+cat $PBS_NODEFILE
+
+export PATH=$PATH:/share/apps/gnu/gnuplot/4.6.6/bin/
+
+rm ??_*
+
+../dist/Debug/GNU-Linux-x86/peakfinder $file
