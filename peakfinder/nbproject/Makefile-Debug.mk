@@ -54,7 +54,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=-O3 -ftree-vectorize -lm -ltiff
+CFLAGS=-O3 -ftree-vectorize -lm -ltiff -fopenmp
 
 # CC Compiler Flags
 CCFLAGS=

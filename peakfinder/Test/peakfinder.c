@@ -744,9 +744,9 @@ int main(int argc, char* argv[]) {
     //getWDim(aux);//->Does not work (something wrong)
     
     //get minimum distance between Centroids
-    //int wdim = getDistancesV2(aux);
+    int wdim = getDistances(aux);
     
-    //Timer
+    /*//Timer
     double startTime2, finishTime2;
     //Start timer
     GET_TIME(startTime2);
@@ -759,7 +759,7 @@ int main(int argc, char* argv[]) {
     wdim = getDistancesV2(aux);
     //Stop timer
     GET_TIME(finishTime2);
-    fprintf(stdout,"The getDistancesV2 took %f seconds\n", finishTime2 - startTime2);
+    fprintf(stdout,"The getDistancesV2 took %f seconds\n", finishTime2 - startTime2);*/
     
     fprintf(stdout, "First wdim:%d\n",wdim);
     
@@ -767,7 +767,7 @@ int main(int argc, char* argv[]) {
     TiffImage masked = aplyMask(image, wdim/2);
     
     //get minimum distance between (corrected) Centroids
-    wdim = getDistancesV2(masked);
+    wdim = getDistances(masked);
     
     //(BUG) reset filename
     free(image->fileName);image->fileName=strdup(originalFileName);

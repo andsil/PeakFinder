@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h> // openmp
 #include <math.h>//pow ...
 #include <unistd.h>//usleep
 #include <tiff.h> //uint8
