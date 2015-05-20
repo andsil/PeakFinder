@@ -137,7 +137,9 @@ void createStatistics(uint8* row, uint32 width, uint8* max, uint8* min, int* his
         //increments counter with that value
         histogram[value]++;
     }
+    #pragma omp critical (max)
     if(*max<max_aux) *max=max_aux;
+    #pragma omp critical (min)
     if(*min>min_aux) *min=min_aux;
 }
 

@@ -5,6 +5,7 @@
 #include <stdlib.h>//malloc
 #include <math.h>//exp2, round
 #include <string.h>//strcat, strlen, etc
+#include <omp.h>//pragma omp
 #include <tiff.h>//uint8
 
 #include "../Auxiliary/auxFunc.h"

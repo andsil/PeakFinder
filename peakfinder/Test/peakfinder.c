@@ -121,11 +121,10 @@ int main(int argc, char* argv[]) {
     //filename
     aux->fileName = addExtension(aux->fileName, "_fourier.tif");
     
+    int max_exp = 0;
 #ifdef FFTW
     fftw_complex* outComp = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * height * width);
     #define OUTCOMP(YY,XX) outComp[(YY)*width+(XX)]
-
-    int max_exp = 0;
     
     //Transform image into frequency domain
     fourierFFTW(outComp, aux->image, aux->width);
@@ -186,6 +185,7 @@ int main(int argc, char* argv[]) {
     //BEGIN RADIAL HISTOGRAM
     
     //init
+    #pragma omp parallel for default(shared)
     for(i=0; i<maxDis; i++){
         histogram[i] = 0;
         histogramPoints[i] = 0;
@@ -197,6 +197,7 @@ int main(int argc, char* argv[]) {
         peaksMinVar[i] = 1000000000;
     }
     
+    #pragma omp parallel for default(shared) private(j, coordY, coordX, distance, rest, module1, module2, module1_log, module2_log, max_exp)
     for(i=0; i<height; i++){
       for(j=0; j<width; j++){
         //coordY = height_half - i;
@@ -316,26 +317,41 @@ int main(int argc, char* argv[]) {
             histogram[(int)(distance/1)+1] += module1*(1-rest) + module2*rest;
             histogramPoints[(int)(distance/1)+1]++;
             //save maximum
+            #pragma omp critical (histogramMaxVar)
+            {
             if(histogramMaxVar[(int)(distance/1)+1] < module1*(1-rest) + module2*rest){
                 histogramMaxVar[(int)(distance/1)+1] = module1*(1-rest) + module2*rest;
             }
+            }
             //save minimum
+            #pragma omp critical (histogramMinVar)
+            {
             if(histogramMinVar[(int)(distance/1)+1] > module1*(1-rest) + module2*rest){
                 histogramMinVar[(int)(distance/1)+1] = module1*(1-rest) + module2*rest;
             }
+            }
             
             //update intensity sum and increment the number of pixels at distance
+            #pragma omp critical (peaks_peaksPoints)
+            {
             if((module1_log > 250 || module2_log > 250) && (coordX * coordY)!=0){//horizontal and vertical ignored
                 peaks[(int)(distance/1)+1] += module1_log*(1-rest)+module2_log*rest;
                 peaksPoints[(int)(distance/1)+1]++;
             }
+            }
             //save maximum
+            #pragma omp critical (peaksMaxVar)
+            {
             if(peaksMaxVar[(int)(distance/1)+1] < module1_log*(1-rest) + module2_log*rest){
                 peaksMaxVar[(int)(distance/1)+1] = module1_log*(1-rest) + module2_log*rest;
             }
+            }
             //save minimum
+            #pragma omp critical (peaksMinVar)
+            {
             if(peaksMinVar[(int)(distance/1)+1] > module1_log*(1-rest) + module2_log*rest){
                 peaksMinVar[(int)(distance/1)+1] = module1_log*(1-rest) + module2_log*rest;
+            }
             }
             
         } else {
@@ -343,28 +359,44 @@ int main(int argc, char* argv[]) {
             histogram[(int)distance] += module1;
             histogramPoints[(int)distance]++;
             //save maximum
+            #pragma omp critical (histogramMaxVar)
+            {
             if(histogramMaxVar[(int)distance] < module1){
                 histogramMaxVar[(int)distance] = module1;
             }
+            }
             //save minimum
+            #pragma omp critical (histogramMinVar)
+            {
             if(histogramMinVar[(int)distance] > module1){
                 histogramMinVar[(int)distance] = module1;
             }
+            }
             
             //update intensity sum and increment the number of pixels at distance
+            #pragma omp critical (peaks_peaksPoints)
+            {
             if(module1_log > 250 && (coordX * coordY)!=0){//horizontal and vertical ignored
                 peaks[(int)distance] += module1_log;
                 peaksPoints[(int)distance]++;
             }
+            }
             //save maximum
+            #pragma omp critical (peaksMaxVar)
+            {
             if(peaksMaxVar[(int)distance] < module1_log){
                 peaksMaxVar[(int)distance] = module1_log;
             }
+            }
             //save minimum
+            #pragma omp critical (peaksMinVar)
+            {
             if(peaksMinVar[(int)distance] > module1_log){
                 peaksMinVar[(int)distance] = module1_log;
             }
+            }
         }
+        #pragma omp atomic
         pointCounter++;
       }
     }
@@ -562,7 +594,8 @@ int main(int argc, char* argv[]) {
     }
     aux->minimum=255; aux->maximum=0;
     //update statistics
-    for(i=0; i<aux->height; i++){
+    //no pragma omp parallel -> results are modified
+    for(i=0; i<height; i++){
         createStatistics(aux->image[i], aux->width, &aux->maximum, &aux->minimum, aux->histogram);
     }
     aux->median  = getMedian(aux->histogram, levels, aux->height*aux->width);
@@ -726,7 +759,7 @@ int main(int argc, char* argv[]) {
     image->pointCount = aux->pointCount = regionCount(aux->listRegions);
 
     //show centroid for each region in the result image
-    showCentroid(aux, aux->listRegions);
+    //showCentroid(aux, aux->listRegions);
 
     //filename
     aux->fileName = addExtension(aux->fileName, "_centroid.tif");

@@ -1,6 +1,7 @@
 #ifndef TRANSFORMATIONS_H
 #define	TRANSFORMATIONS_H
 
+#include <omp.h>//omp
 #include <tiff.h>//uint8
 
 #include "../TiffImage/tiffFile.h"//TiffImage

@@ -43,6 +43,7 @@ RegionLL findRegions(TiffImage img){
     /* UNECESSARY SPACE ALOCATED!!!!! COULD BE OPTIMIZED */
     PointCoord queueStack[width*2+height*2];
     //ignores the first and last 6 pixels
+    //#pragma omp parallel for default(shared) private(j, sp, column, row, auxPoint, auxPointList, auxRegion)
     for(i=6; i<height-6; i++){
         for(j=6; j<width-6; j++){
             //check if this is a white point and was not visited yet
@@ -302,6 +303,7 @@ int getDistancesV2(TiffImage img){
     }
     
     //for all points -> could be minimized?
+    #pragma omp parallel for default(shared) private(j,distanceCandidate, auxR, r, d, ii, jj, coordX, coordY, auxR2, distanceX, distanceY, distance)
     for(i=0; i<height; i++){
         for(j=0; j<width; j++){
             //init

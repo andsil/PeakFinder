@@ -132,11 +132,11 @@ void fourier(Complex** out, uint8** in, int FFT_SIZE) {
     double *re, *im;
     
     // FFT //
-    #pragma omp parallel for default(shared) private(x,re,im)
+    //#pragma omp parallel for default(shared) private(x,re,im)
     for (y = 0; y < FFT_SIZE; y++) {
         //memory allocation
-          re = (double*) malloc (FFT_SIZE * sizeof(double));
-          im = (double*) malloc (FFT_SIZE * sizeof(double));
+        re = (double*) malloc (FFT_SIZE * sizeof(double));
+        im = (double*) malloc (FFT_SIZE * sizeof(double));
         for (x = 0; x < FFT_SIZE; x++) {
             re[x] = (double) in[y][x];
             im[x] = 0;
@@ -146,13 +146,14 @@ void fourier(Complex** out, uint8** in, int FFT_SIZE) {
             out[y][x].Re = re[x];
             out[y][x].Im = im[x];
         }
-          free(re);
-          free(im);
+        free(re);
+        free(im);
     }
-    #pragma omp parallel for default(shared) private(y,re,im)
+    //#pragma omp parallel for default(shared) private(y,re,im)
     for (x = 0; x < FFT_SIZE; x++) {
-          re = (double*) malloc (FFT_SIZE * sizeof(double));
-          im = (double*) malloc (FFT_SIZE * sizeof(double));
+        //memory allocation
+        re = (double*) malloc (FFT_SIZE * sizeof(double));
+        im = (double*) malloc (FFT_SIZE * sizeof(double));
         for (y = 0; y < FFT_SIZE; y++) {
             re[y] = out[y][x].Re;
             im[y] = out[y][x].Im;
@@ -162,8 +163,8 @@ void fourier(Complex** out, uint8** in, int FFT_SIZE) {
             out[y][x].Re = re[y];
             out[y][x].Im = im[y];
         }
-          free(re);
-          free(im);
+        free(re);
+        free(im);
     }
 }
 
@@ -200,7 +201,7 @@ void inverseFourier(uint8** out, Complex** in, int FFT_SIZE) {
     }
 
     // IFFT //
-    #pragma omp parallel for default(shared) private(y,re,im)
+    //#pragma omp parallel for default(shared) private(y,re,im)
     for (x = 0; x < FFT_SIZE; x++) {
         //memory allocation
         re = (double*) malloc (FFT_SIZE * sizeof(double));
@@ -217,7 +218,7 @@ void inverseFourier(uint8** out, Complex** in, int FFT_SIZE) {
         free(re);
         free(im);
     }
-    #pragma omp parallel for default(shared) private(x,re,im)
+    //#pragma omp parallel for default(shared) private(x,re,im)
     for (y = 0; y < FFT_SIZE; y++) {
         re = (double*) malloc (FFT_SIZE * sizeof(double));
         im = (double*) malloc (FFT_SIZE * sizeof(double));
@@ -246,8 +247,8 @@ void inverseFourier(uint8** out, Complex** in, int FFT_SIZE) {
         free(re);
         free(im);
     }
-
-  
+    //free(Real);
+    //free(Imag);
 }
 
 void inverseFourierFFTW(uint8** out, fftw_complex* in, int FFT_SIZE) {
@@ -291,12 +292,12 @@ void fourierSpectrumImage(uint8** out, Complex** in, int FFT_SIZE) {
     // Power Spectrum //
     fprintf(stderr, "Calculating power spectrum...\n");
     
-    #pragma omp parallel for default(shared) private(x,exp)
+    //#pragma omp parallel for default(shared) private(x,exp)
     for (y = 0; y < FFT_SIZE; y++) {
         for (x = 0; x < FFT_SIZE; x++) {
             exp = log10(compAbs(in[y][x])) * 100.0;
             spectrum[y][x] = exp;
-            //#pragma omp critical
+            //#pragma omp critical (max_exp)
             {
                 if (max_exp < exp) {
                     max_exp = exp;
@@ -307,6 +308,7 @@ void fourierSpectrumImage(uint8** out, Complex** in, int FFT_SIZE) {
 
     fprintf(stderr, "max_exp = %d\n", max_exp);
 
+    //#pragma omp parallel for default(shared) private(x,i)
     for (y = 0; y < FFT_SIZE; y++) {
         for (x = 0; x < FFT_SIZE; x++) {
             int rx, ry;

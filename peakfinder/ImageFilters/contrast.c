@@ -180,6 +180,7 @@ TiffImage binImage8bit(TiffImage img, uint8 threshold) {
     }
 
     //construct bin image
+    #pragma omp parallel for default(shared) private(j) if(omp_get_num_threads()==1)
     for (i = 0; i < img->height; i++) {
         for (j = 0; j < img->width; j++) {
             if (img->image[i][j] > threshold)

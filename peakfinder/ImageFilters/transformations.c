@@ -15,6 +15,7 @@ TiffImage dilation(TiffImage img) {
     int width = img->width;
     int height = img->height;
     int i, j;
+    #pragma omp parallel for default(shared) private(j) if(omp_get_num_threads()==1)
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
             //if the pixel is black
@@ -52,6 +53,7 @@ TiffImage erosion(TiffImage img) {
     int i, j;
     int white;
 
+    #pragma omp parallel for default(shared) private(j, white) if(omp_get_num_threads()==1)
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
             white = FALSE;
