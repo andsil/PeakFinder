@@ -11,11 +11,10 @@ RegionLL newRegionLL(){
     if(!(res = (RegionLL)malloc(sizeof(struct sRegionLL)))){
         goto error;
     }
-    
-    res->id         = 0;
-    res->nextRegion = NULL;
-    res->prevRegion = NULL;
-    res->region     = NULL;
+
+    res->size = 8;
+    res->regions = (Region*) malloc(sizeof(Region)*res->size);
+    res->lenght = 0;
     
     return res;
     
@@ -26,17 +25,25 @@ error:
 
 /** CONSTRUCTOR **/
 
-RegionLL createNewRegionLL(Region region){
+RegionLL createNewRegionLL(Region *region){
     RegionLL res;
     
     if(!(res = newRegionLL())){
         goto error;
     }
     
+    //if occupation of array is greater than 80% -> double array size
+    if(((float)res->lenght)/res->size > 0.8){
+        realocRegionLL(res);
+    }
+    
     //add first element
-    res->id     = 1;
-    region->id  = 1;
-    res->region = region;
+    cloneRegion(region, &res->regions[res->lenght]);
+    res->regions[res->lenght].id = res->lenght;
+    res->lenght++;
+    
+    //free memory (not PointLL inside)
+    free(region);
     
     return res;
     
@@ -44,12 +51,21 @@ error:
     return NULL;
 }
 
+RegionLL realocRegionLL(RegionLL list){
+    //validation
+    if(list == NULL){
+        return NULL;
+    }
+    
+    list->size *= 2;
+    list->regions = (Region*) realloc(list->regions, list->size*sizeof(Region));
+    
+    return list;
+}
+
 /** INSERT **/
 
-RegionLL addRegionLLEntry(RegionLL list, Region addRegion){
-    //variables
-    RegionLL lastRegion, newEntry;
-    
+RegionLL addRegionLLEntry(RegionLL list, Region *addRegion){
     //validation
     if(!addRegion){
         fprintf(stderr, "Warning: No Region added\n");
@@ -61,168 +77,57 @@ RegionLL addRegionLLEntry(RegionLL list, Region addRegion){
         return createNewRegionLL(addRegion);
     }
     
-    //else - add to the tail of the list
-    if(!(newEntry = newRegionLL())){
-        goto error;
+    //if occupation of array is greater than 80% -> double array size
+    if(((float)list->lenght)/list->size > 0.8){
+        realocRegionLL(list);
     }
     
-    //get last RegionLL entry
-    if(!(lastRegion = getLastRegionEntry(list))){
-        goto error;//should never happen
-    }
+    //add element
+    cloneRegion(addRegion, &list->regions[list->lenght]);
+    list->regions[list->lenght].id = list->lenght;
+    list->lenght++;
     
-    //Put region info in the list
-    newEntry->id         = lastRegion->id + 1;
-    addRegion->id        = lastRegion->id + 1;
-    newEntry->region     = addRegion;
-    newEntry->prevRegion = lastRegion;
-    newEntry->nextRegion = NULL;
-    
-    lastRegion->nextRegion = newEntry;
+    //free memory (not PointLL inside)
+    free(addRegion);
     
     return list;
-    
-error:
-    fprintf(stderr, "ERROR: An error occurred\n");
-    return NULL;
 }
 
 /** REMOVE **/
 
 RegionLL remRegionLLEntry(RegionLL entry, int remId){
     //variables
-    RegionLL prev, actual, next;
+    int i;
     
     if(!entry){
         fprintf(stderr, "Warning: No Region List\n");
         return NULL;
     }
     
-    //from the start
-    actual = getFirstRegionEntry(entry);
-    
-    while(actual->nextRegion){
-        next = actual->nextRegion;
-        prev = actual->prevRegion;
-        if(actual->id == remId){
-            if(next){
-                next->prevRegion = prev;
-            }
-            if(prev){
-                prev->nextRegion = next;
-            }
-            remRegion(actual->region);
-            free(actual);
-            updateIDNextRegionLL(next, -1);
+    //check array limits
+    if(remId>=0 && remId<entry->lenght){
+        remRegion(&entry->regions[remId]);
+        //changes array positions
+        for(i=remId; i<entry->lenght-1; i++){
+            entry->regions[i] = entry->regions[i+1];
+            entry->regions[i].id--;
         }
-        actual = actual->nextRegion;
+        
+        entry->lenght--;
     }
     
     return entry;
 }
 
 void remAllRegionLL(RegionLL list){
-    RegionLL aux, next;
-    
-    //validation
-    if(!list){
-        return;
-    }
-    
-    aux = list;
-    while(aux->nextRegion){
-        next = aux->nextRegion;
-        free(aux->region);
-        free(aux);
-        aux = next;
-    }
+    free(list->regions);
+    free(list);
 }
 
 /** GETS **/
 
-RegionLL getLastRegionEntry(RegionLL list){
-    //variables
-    RegionLL aux;
-    
-    //validation
-    if(!list){
-        return NULL;
-    }
-    
-    aux = list;
-    
-    while(aux->nextRegion){
-        aux = aux->nextRegion;
-    }
-
-    return aux;
-}
-
-RegionLL getFirstRegionEntry(RegionLL list){
-    //variables
-    RegionLL aux;
-    
-    //validation
-    if(!list){
-        return NULL;
-    }
-    
-    aux = list;
-    
-    while(aux->prevRegion){
-        aux = aux->prevRegion;
-    }
-
-    return aux;
-}
-
-RegionLL getRegionEntry(RegionLL list, int regionID){
-    RegionLL aux, res = NULL;
-    
-    if(!list){
-        return NULL;
-    }
-    
-    //from the start
-    aux = getFirstRegionEntry(list);
-    
-    while(aux->nextRegion){
-        if(aux->id == regionID){
-            res = aux;
-            break;
-        }
-        aux = aux->nextRegion;
-    }
-    
-    return res;
-}
-
-/** OTHER **/
-
-void updateIDNextRegionLL(RegionLL region, int increment){
-    if(!region)
-        return;
-    region->id += increment;
-    updateIDNextRegionLL(region->nextRegion, increment);
-}
-
 int regionCount(RegionLL list){
-    RegionLL aux;
-    int counter = 1;
-    
-    //validation
-    if(!list){
-        return 0;
-    }
-    
-    aux=getFirstRegionEntry(list);
-    while(aux->nextRegion){
-        aux = aux->nextRegion;
-        counter++;
-    }
-    
-    return counter;
-
+    return list->lenght;
 }
 
 /*############## REGION ##############*/
@@ -232,10 +137,10 @@ int regionCount(RegionLL list){
 /**
  * SHOULD NOT BE USED OUTSIDE! -> Not declared in header file
  */
-Region newRegion(){
-    Region res;
+Region* newRegion(){
+    Region* res;
     
-    if(!(res = (Region)malloc(sizeof(struct sRegion)))){
+    if(!(res = (Region*)malloc(sizeof(Region)))){
         goto error;
     }
     
@@ -259,8 +164,8 @@ error:
 }
 
 //NOTE: Borders regions (within 5 pixels) are deleted!
-Region createNewRegion(PointLL pointList, uint32 width, uint32 height){
-    Region res;
+Region* createNewRegion(PointLL pointList, uint32 width, uint32 height){
+    Region* res;
     PointCoord* aux;
     
     //validation
@@ -282,7 +187,6 @@ Region createNewRegion(PointLL pointList, uint32 width, uint32 height){
     aux = compute2DPolygonCentroid(pointList, &res->centroid, res->coordXBeg,
             res->coordYBeg, res->coordXEnd-res->coordXBeg+1,
             res->coordYEnd-res->coordYBeg+1);
-    
     //if could not calculate centroid, give this indication
     if(aux == NULL){
         return NULL;
@@ -296,7 +200,7 @@ error:
 
 /** REMOVE **/
 
-void remRegion(Region region){
+void remRegion(Region *region){
     //validation
     if(!region){
         fprintf(stderr, "Warning: No region to remove\n");
@@ -306,4 +210,25 @@ void remRegion(Region region){
     //free memory
     remAllPointLL(region->pointList);
     free(region);
+}
+
+/** COPY **/
+
+void cloneRegion(Region *src, Region *dst){
+    //validation
+    if(!src || !dst){
+        fprintf(stderr, "Warning: No region to copy\n");
+        return;
+    }
+    
+    dst->id         = src->id        ;
+    dst->coordXBeg  = src->coordXBeg ;
+    dst->coordYBeg  = src->coordYBeg ;
+    dst->coordXEnd  = src->coordXEnd ;
+    dst->coordYEnd  = src->coordYEnd ;
+    dst->minValue   = src->minValue  ;
+    dst->maxValue   = src->maxValue  ;
+    dst->pointCount = src->pointCount;
+    dst->centroid.x = src->centroid.x;
+    dst->centroid.y = src->centroid.y;
 }

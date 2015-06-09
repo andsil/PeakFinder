@@ -36,7 +36,7 @@ TiffImage aplyMask(TiffImage img, int r){
     }
     
     int startCoordX, startCoordY;
-    RegionLL auxRLL = img->listRegions;
+    Region *auxR;
     int intensity;//int ii=1;
     
     //filename
@@ -44,11 +44,19 @@ TiffImage aplyMask(TiffImage img, int r){
     
     FILE* results = fopen(img->fileName,"w");
     fprintf(results, "Point;CoordX;CoordY;Intensity;\n");
+    
+    //validation
+    if(!img->listRegions || !img->listRegions->regions){
+        fprintf(stderr, "Error: No region list\n");
+        return NULL;
+    }
+    
     //for each region
-    while(auxRLL){
+    for(i=0; i<img->listRegions->lenght; i++){
+        auxR=&img->listRegions->regions[i];
         //get start coordinates from centroid
-        startCoordX = (int)round(auxRLL->region->centroid.x) - r;
-        startCoordY = (int)round(auxRLL->region->centroid.y) - r;
+        startCoordX = (int)round(auxR->centroid.x) - r;
+        startCoordY = (int)round(auxR->centroid.y) - r;
         //Get intensities from neighbors
         int centerInt=0, upInt=0, downInt=0, leftInt=0, rightInt=0, maxInt=0, lastInt=0;
         //flag for end of search
@@ -57,11 +65,11 @@ TiffImage aplyMask(TiffImage img, int r){
         while(!refinedCentroid) {
             refinedCentroid = 1;//counter++;if(counter > 10){sleep(10);}//if more than 10 moves stop (could be "deadlock")
             //gets the intensity sum of all four neighbors
-            centerInt = intensitySum(img, auxRLL->id, startCoordX, startCoordY, r, intmask);  maxInt=centerInt;
-            upInt     = intensitySum(img, auxRLL->id, startCoordX, startCoordY+1, r, intmask);if(upInt>maxInt)   maxInt=upInt;
-            downInt   = intensitySum(img, auxRLL->id, startCoordX, startCoordY-1, r, intmask);if(downInt>maxInt) maxInt=downInt;
-            leftInt   = intensitySum(img, auxRLL->id, startCoordX-1, startCoordY, r, intmask);if(leftInt>maxInt) maxInt=leftInt;
-            rightInt  = intensitySum(img, auxRLL->id, startCoordX+1, startCoordY, r, intmask);if(rightInt>maxInt)maxInt=rightInt;
+            centerInt = intensitySum(img, i, startCoordX, startCoordY, r, intmask);  maxInt=centerInt;
+            upInt     = intensitySum(img, i, startCoordX, startCoordY+1, r, intmask);if(upInt>maxInt)   maxInt=upInt;
+            downInt   = intensitySum(img, i, startCoordX, startCoordY-1, r, intmask);if(downInt>maxInt) maxInt=downInt;
+            leftInt   = intensitySum(img, i, startCoordX-1, startCoordY, r, intmask);if(leftInt>maxInt) maxInt=leftInt;
+            rightInt  = intensitySum(img, i, startCoordX+1, startCoordY, r, intmask);if(rightInt>maxInt)maxInt=rightInt;
             //fprintf(stdout, "[%d]B %d-%d-%d-%d-%d (%d,%d)\n", auxRLL->id, centerInt, upInt, downInt, leftInt, rightInt, startCoordX, startCoordY);
             
             //avoid lock in jumping between two maximums
@@ -71,22 +79,22 @@ TiffImage aplyMask(TiffImage img, int r){
             //checks if some of them have greater intensity sum than the center
             //(second condition to garantee two oposite transformations are not applied in the same iteration)
             if(maxInt == upInt && refinedCentroid){//printf("up\n");
-                auxRLL->region->centroid.y += 1;
+                auxR->centroid.y += 1;
                 startCoordY +=1;
                 refinedCentroid = 0;
             }
             if(maxInt == downInt && refinedCentroid){//printf("down\n");
-                auxRLL->region->centroid.y -= 1;
+                auxR->centroid.y -= 1;
                 startCoordY -=1;
                 refinedCentroid = 0;
             }
             if(maxInt == leftInt && refinedCentroid){//printf("left\n");
-                auxRLL->region->centroid.x -= 1;
+                auxR->centroid.x -= 1;
                 startCoordX -=1;
                 refinedCentroid = 0;
             }
             if(maxInt == rightInt && refinedCentroid){//printf("right\n");
-                auxRLL->region->centroid.x += 1;
+                auxR->centroid.x += 1;
                 startCoordX +=1;
                 refinedCentroid = 0;
             }
@@ -95,11 +103,10 @@ TiffImage aplyMask(TiffImage img, int r){
             lastInt=maxInt;
         }
         //apply refined coordinates to res image
-        intensity = maskApplication(img, auxRLL->id, startCoordX, startCoordY, r, intmask, res);
+        intensity = maskApplication(img, i, startCoordX, startCoordY, r, intmask, res);
         //save to CSV
-        fprintf(results, "%d;%.3f;%.3f;%d;\n", auxRLL->id, auxRLL->region->centroid.x, auxRLL->region->centroid.y, intensity);
+        fprintf(results, "%d;%.3f;%.3f;%d;\n", i, auxR->centroid.x, auxR->centroid.y, intensity);
         //continue to next region
-        auxRLL = auxRLL->nextRegion;
     }
     fflush(results);
     fclose(results);
@@ -139,7 +146,7 @@ int maskApplication(TiffImage img, int id, int startCoordX, int startCoordY, int
             }
         }
     } else {
-        fprintf(stderr, "Warning!!! outside matrix bounds-> point %d skipped!\n", id);
+        fprintf(stderr, "Warning!!! outside matrix bounds-> point %d skipped! (%d,%d)\n", id, startCoordX, startCoordY);
     }
     return intensitySum;
 }

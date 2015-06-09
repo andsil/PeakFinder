@@ -862,13 +862,18 @@ void printArray(FILE* fd, uint8* array, int width){
 }
 
 void showCentroid(TiffImage img, RegionLL regList){
-    RegionLL auxRLL = getFirstRegionEntry(regList);
-    Region   auxR;
+    int i;
+    Region auxR;
     
-    while(auxRLL){
-        auxR = auxRLL->region;
-        img->image[(int)round(auxR->centroid.y)][(int)round(auxR->centroid.x)] = 0;
-        auxRLL = auxRLL->nextRegion;
+    //validation
+    if(!img->listRegions || !img->listRegions->regions){
+        fprintf(stderr, "Error: No region list\n");
+        return ;
+    }
+    
+    for(i=0; i<img->listRegions->lenght; i++){
+        auxR = img->listRegions->regions[i];
+        img->image[(int)round(auxR.centroid.y)][(int)round(auxR.centroid.x)] = 0;
     }
 }
 

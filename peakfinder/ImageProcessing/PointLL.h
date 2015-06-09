@@ -30,8 +30,7 @@ typedef struct sPoint{
 }Point;
 
 /**
- * List of Points - Includes a Point, identified by an ID and a
- * pointer for the following and previous Point.
+ * List of Points
  */
 typedef struct sPointLL{
     int lenght;                     //Current occupied indexes

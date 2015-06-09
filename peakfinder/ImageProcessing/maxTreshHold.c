@@ -1,7 +1,7 @@
 #include "maxTreshHold.h"
 
 /* LOCAL PROTOTYPES */
-char alreadyExists(Region *neighbors, int pointCount, int id);
+char alreadyExists(Region **neighbors, int pointCount, int id);
 
 /**
  * Auxiliary functions that returns the maximum of two points
@@ -17,7 +17,7 @@ RegionLL findRegions(TiffImage img){
     //variables
     Point*      auxPoint      = NULL;
     PointLL     auxPointList  = NULL;
-    Region      auxRegion     = NULL;
+    Region*     auxRegion     = NULL;
     RegionLL    resRegionList = NULL;
     int i, j, width, height, column, row;
     char** mark;
@@ -147,7 +147,7 @@ int addQueue(uint8** img, char** mark, PointCoord* queueStack, int sp, int i, in
     return sp;
 }
 
-char alreadyExists(Region *neighbors, int pointCount, int id){
+char alreadyExists(Region **neighbors, int pointCount, int id){
     int i;
     for(i=0; i<pointCount; i++){
         if(neighbors[i]->id == id){
@@ -171,28 +171,22 @@ int getDistances(TiffImage img){
     
     //three arrays. 2 Arrays for each axis indicating the id of the point
     //A third array indexed by pointID contains the pointer for the region.
-    Region  point[pointCount];
+    Region  *point;
     double  minDistance[pointCount];//Minimum
     
     //Auxiliary variables
-    RegionLL auxRLL;
-    Region  auxR;
     int     auxPointID, id;
     
     double  distanceX, distanceY, distance, distanceMin, distanceMax;
-    //for each region register the ID
-    auxRLL = img->listRegions;
-    while(auxRLL){
-        auxR  = auxRLL->region;
-        auxPointID = auxRLL->id;
-        if(auxR){
-            //register the point with regionID with Region pointer
-            point[auxPointID-1] = auxR;
-        } else {
-            fprintf(stderr, "Warning: Distances -> Point skipped\n");
-        }
-        auxRLL = auxRLL->nextRegion;
+
+    //validation
+    if(!img->listRegions || !img->listRegions->regions){
+        fprintf(stderr, "Error: No region list\n");
+        return -1;
     }
+    
+    //for each region register the ID
+    point = img->listRegions->regions;
     
     //init
     distanceMin = -1;
@@ -206,8 +200,8 @@ int getDistances(TiffImage img){
     //for each point computes the distance to every other point
     for(id=0; id<pointCount; id++){
         for(auxPointID=id+1; auxPointID<pointCount; auxPointID++){//previous distances already checked
-            distanceX = fabs(point[auxPointID]->centroid.x - point[id]->centroid.x);
-            distanceY = fabs(point[auxPointID]->centroid.y - point[id]->centroid.y);
+            distanceX = fabs(point[auxPointID].centroid.x - point[id].centroid.x);
+            distanceY = fabs(point[auxPointID].centroid.y - point[id].centroid.y);
             distance = sqrt(pow(distanceX,2)+pow(distanceY,2));
             //set two way distance
             if(minDistance[id] > distance || minDistance[id]<0){
@@ -252,13 +246,12 @@ int getDistancesV2(TiffImage img){
     
     //Region array to store the pointers for each region mapped as coordinates.
     //Array indexed by pointID contains the pointer for the region.
-    Region  regionLocs[height][width];
+    Region  *regionLocs[height][width];
     double  minDistance[pointCount];//Minimum
     
     //Auxiliary variables
-    RegionLL    auxRLL;
-    Region      auxR, auxR2;
     PointCoord  cent;//, minimumCandidate;
+    Region      *auxR, *auxR2;
     int         id, auxX, auxY;
     int         coordX, coordY, r, d;
     int         height_half = height/2;
@@ -271,15 +264,15 @@ int getDistancesV2(TiffImage img){
     }
     
     double distance, distanceCandidate, distanceMin, distanceMax, distanceX, distanceY;
+    
+    if(!img->listRegions || !img->listRegions->regions){
+        fprintf(stderr, "Error: No region list\n");
+        return -1;
+    }
+    
     //for each region register the ID
-    auxRLL = img->listRegions;
-    while(auxRLL){
-        //get variables
-        auxR = auxRLL->region;
-        
-        //check null
-        if(auxR != NULL){
-            cent = auxR->centroid;
+    for(i=0; i<img->listRegions->lenght; i++){
+            cent = img->listRegions->regions[i].centroid;
 
             //insert pointer to original region in centroid coordinates
             auxX=(int)round(cent.x);
@@ -287,12 +280,8 @@ int getDistancesV2(TiffImage img){
             if(auxY<0 || auxX<0 || auxY>=height || auxX>=width){
                 fprintf(stderr, "WARNING: [GetDistance] Coordinates out of bounds\n");
             } else {
-                regionLocs[auxY][auxX] = auxR;
+                regionLocs[auxY][auxX] = &img->listRegions->regions[i];
             }
-        }
-        
-        //next iteration
-        auxRLL = auxRLL->nextRegion;
     }
     
     //init

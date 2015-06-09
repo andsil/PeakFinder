@@ -29,17 +29,15 @@ typedef struct sRegion{
     int        pointCount; //Number of points in this Region
     PointCoord centroid;   //Centroid of the region
     PointLL    pointList;  //Pointer to first Point of the list
-}*Region;
+}Region;
 
 /**
- * List of Regions - Includes a pointer to some Region and
- * two pointers to the following a previous entry of the list.
+ * List of Regions
  */
 typedef struct sRegionLL{
-    int id;             //Region ID
-    Region region;      //Pointer to Region
-    struct sRegionLL*   nextRegion;  //Pointer to next Region
-    struct sRegionLL*   prevRegion;  //Pointer to previous Region
+    int lenght;                     //Current occupied indexes
+    int size;                       //Allocated array size
+    Region *regions;                //Array of regions
 }*RegionLL;
 
 /*****************************************************************
@@ -57,14 +55,19 @@ typedef struct sRegionLL{
 /**
  * Creates new list of Regions
  */
-RegionLL createNewRegionLL(Region region);
+RegionLL createNewRegionLL(Region *region);
+
+/**
+ * Reallocates the Regions array to double the size
+ */
+RegionLL realocRegionLL(RegionLL list);
 
 /** INSERT **/
 
 /**
  * Add a Region to a list of Regions
  */
-RegionLL addRegionLLEntry(RegionLL list, Region addRegion);
+RegionLL addRegionLLEntry(RegionLL list, Region *addRegion);
 
 /** REMOVE **/
 
@@ -81,29 +84,6 @@ void remAllRegionLL(RegionLL list);
 /** GETS **/
 
 /**
- * Get a Region from a list of Regions by its ID
- */
-RegionLL getRegionEntry(RegionLL list, int regionID);
-
-/**
- * Get the last Region from the list
- */
-RegionLL getLastRegionEntry(RegionLL list);
-
-/**
- * Get the first Region from the list
- */
-RegionLL getFirstRegionEntry(RegionLL list);
-
-/** OTHER **/
-
-/**
- * Updates the ID of the Regions following the pointed Region by the
- * specified increment value
- */
-void updateIDNextRegionLL(RegionLL region, int increment);
-
-/**
  * Count how many region the list have
  */
 int regionCount(RegionLL list);
@@ -116,14 +96,21 @@ int regionCount(RegionLL list);
  * Create a new Region from a List of Points
  * NOTE: Borders regions (within 5 pixels) are deleted!
  */
-Region createNewRegion(PointLL pointList, uint32 width, uint32 height);
+Region* createNewRegion(PointLL pointList, uint32 width, uint32 height);
 
 /** REMOVE **/
 
 /**
  * Removes the indicated Region (free memory)
  */
-void remRegion(Region region);
+void remRegion(Region *region);
+
+/** COPY **/
+
+/**
+ * Do a shadow copy
+ */
+void cloneRegion(Region *src, Region *dst);
 
 /*****************************************************************
 ########################  END PROTOTYPES    ######################

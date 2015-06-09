@@ -32,7 +32,7 @@ PointLL createNewPointLL(Point* point){
     }
     
     //if occupation of array is greater than 80% -> double array size
-    if(res->lenght/res->size > 0.8){
+    if(((float)res->lenght)/res->size > 0.8){
         realocPointLL(res);
     }
     
@@ -75,7 +75,7 @@ PointLL addPointLLEntry(PointLL list, Point* addPoint){
     }
     
     //if occupation of array is greater than 80% -> double array size
-    if(list->lenght/list->size > 0.8){
+    if(((float)list->lenght)/list->size > 0.8){
         realocPointLL(list);
     }
     
@@ -102,6 +102,7 @@ PointLL remPointLLEntry(PointLL list, int remId){
     
     //check array limits
     if(remId>=0 && remId<list->lenght){
+        remPoint(&list->points[remId]);
         //changes array positions
         for(i=remId; i<list->lenght-1; i++){
             list->points[i] = list->points[i+1];
